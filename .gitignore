@@ -1,0 +1,16 @@
+;; 2017.03.31
+;; Yuan
+;;
+;; gitignore for Insight code challenge 
+;;
+
+;;input files to ignore
+log.txt
+
+;;extensions to ignore
+*.log
+*.pot
+*.pyc
+
+;;directories to ignore
+.idea/
