@@ -2,7 +2,6 @@
 # -*- coding: UTF-8 -*-
 # Last modified: 
 import unittest
-import read_entry
 import datetime as dt
 
 class BlockedHosts(object):

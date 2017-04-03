@@ -1,9 +1,9 @@
 import sys
 import read_entry
-import active_host
-import large_resource
-import log_err_block
-import busiest_time
+import host_activity
+import resource_statistics
+import block_hosts
+import time_statistics
 #import logger
 
 if __name__ == "__main__":
@@ -15,10 +15,10 @@ if __name__ == "__main__":
     outfiles["resources"] = sys.argv[4]
     outfiles["blocked"] = sys.argv[5]
 
-    hosts = active_host.HostActivity()
-    resources = large_resource.ResourceStatistics()
-    hours = busiest_time.TimeStatistics(hours=1, n_top=10)
-    blocked = log_err_block.BlockedHosts(watch_seconds=20, block_seconds=300, chances=3) 
+    hosts = host_activity.HostActivity()
+    resources = resource_statistics.ResourceStatistics()
+    hours = time_statistics.TimeStatistics(hours=1, n_top=10)
+    blocked = block_hosts.BlockedHosts(watch_seconds=20, block_seconds=300, chances=3) 
 
     blocked_logs = []
 

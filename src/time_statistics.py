@@ -2,7 +2,6 @@
 # -*- coding: UTF-8 -*-
 # Last modified: 
 import unittest
-import read_entry
 import algorithms
 import datetime as dt
 from collections import deque
