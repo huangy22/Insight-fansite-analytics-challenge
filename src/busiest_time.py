@@ -7,7 +7,7 @@ import algorithms
 import datetime as dt
 from collections import deque
 
-TIME_WINDOW = dt.timedelta(minutes=1)
+TIME_WINDOW = dt.timedelta(hours=1)
 
 N_TOP = 10
 

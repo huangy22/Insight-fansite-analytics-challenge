@@ -8,6 +8,9 @@
 log.txt
 log_test2.txt
 
+;;output files to ignore
+*_test*.txt
+
 ;;extensions to ignore
 *.log
 *.pot
