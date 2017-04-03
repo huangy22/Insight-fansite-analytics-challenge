@@ -60,9 +60,12 @@ def pythonized(d):
     return d
 
 def read_entry(line):
+    #try:
     m = pattern.match(line)
     hit = m.groupdict()
-    return pythonized(hit)
+    dictionary = pythonized(hit)
+    #except
+    return dictionary
 
 class TestFileReadInMethods(unittest.TestCase):
     def setUp(self):

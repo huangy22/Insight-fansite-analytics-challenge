@@ -4,17 +4,14 @@
 ;; gitignore for Insight code challenge 
 ;;
 
-;;input files to ignore
+;; input files to ignore
 log.txt
 log_test2.txt
 
-;;output files to ignore
-*_test*.txt
-
-;;extensions to ignore
+;; extensions to ignore
 *.log
 *.pot
 *.pyc
 
-;;directories to ignore
+;; directories to ignore
 .idea/

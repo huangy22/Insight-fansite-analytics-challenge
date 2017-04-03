@@ -2,60 +2,80 @@
 # -*- coding: UTF-8 -*-
 # Last modified: 
 import unittest
-import read_entry
 import algorithms 
+import read_entry
 
-COUNT_IDX = 0
-SIZE_IDX = 1
+class HostActivity(object):
+    def __init__(self):
 
-HOST= {}
+        self.COUNT = 0
+        self.SIZE = 1
 
-def update_host(entry):
-    """Add the info of entry into the statistics of each host.
-    Args:
-        entry(dict): the dictionary of a log info, including keys "Host", "Time",
-        "Request", "Reply", "Size".
-    Returns:
-        None.
-    """
-    if entry["Host"] in HOST:
-        HOST[entry["Host"]][COUNT_IDX] += 1 
-        HOST[entry["Host"]][SIZE_IDX] += entry["Size"]
-    else:
-        HOST[entry["Host"]] = [0, 0] 
-        HOST[entry["Host"]][COUNT_IDX] = 1 
-        HOST[entry["Host"]][SIZE_IDX] = entry["Size"]
+        self.__count_index = 0
+        self.__size_index = 1
 
-def find_active_hosts(number, sort_feature):
-    top = []
-    if sort_feature=="Count":
-        idx = COUNT_IDX 
-    elif sort_feature=="Size":
-        idx = SIZE_IDX
-    return algorithms.nlargest_dict(number, HOST, idx)
+        self.__host= {}
+
+    def update(self, entry):
+        """Add the info of entry into the statistics of each host.
+        Args:
+            entry(dict): the dictionary of a log info, including keys "Host", "Time",
+            "Request", "Reply", "Size".
+        Returns:
+            None.
+        """
+        if entry["Host"] in self.__host:
+            self.__host[entry["Host"]][self.__count_index] += 1 
+            self.__host[entry["Host"]][self.__size_index] += entry["Size"]
+        else:
+            self.__host[entry["Host"]] = [0, 0] 
+            self.__host[entry["Host"]][self.__count_index] = 1 
+            self.__host[entry["Host"]][self.__size_index] = entry["Size"]
+
+    def top(self, number, feature):
+        if feature==self.COUNT:
+            idx = self.__count_index 
+        elif feature==self.SIZE:
+            idx = self.__size_index
+        else:
+            raise NotImplementedError
+        return algorithms.nlargest_dict(number, self.__host, idx)
+
+    def get(self, host, feature):
+        if feature==self.COUNT:
+            idx = self.__count_index 
+        elif feature==self.SIZE:
+            idx = self.__size_index
+        else:
+            raise NotImplementedError
+        return self.__host[host][idx]
 
 class TestHost(unittest.TestCase):
     def setUp(self):
-        #self.file = ['199.72.81.55 - - [01/Jul/1995:00:00:01 -0400] "GET /history/apollo/ HTTP/1.0" 200 -',
-                     #'220.149.67.62 - - [01/Jul/1995:00:00:27 -0400] "GET /images/KSC-logosmall.gif HTTP/1.0" 200 1204']
-        self.file = "../log_input/log_test.txt"
+        self.data = [{"Host": "A", "Size": 1},
+                    {"Host": "A", "Size": 2},
+                    {"Host": "A", "Size": 2},
+                    {"Host": "B", "Size": 20},
+                    {"Host": "B", "Size": 3},
+                    {"Host": "C", "Size": 2},
+                    {"Host": "C", "Size": 2},
+                    {"Host": "D", "Size": 2},
+                    {"Host": "E", "Size": 33},
+                    {"Host": "F", "Size": 2},
+                    ]
 
     def test_update_host(self):
-        reader = open(self.file, 'r')
-        block_file = []
-        for line in reader:
-            entry = read_entry.read_entry(line)
-            update_host(entry)
-        #print HOST
+        hosts = HostActivity()
+        for entry in self.data:
+            hosts.update(entry)
+        print "A: ", hosts.get("A", hosts.COUNT)
 
     def test_find_active_hosts(self):
-        reader = open(self.file, 'r')
-        block_file = []
-        for line in reader:
-            entry = read_entry.read_entry(line)
-            update_host(entry)
-        active_hosts = find_active_hosts(10, "Count")
-        print active_hosts
+        hosts = HostActivity()
+        for entry in self.data:
+            hosts.update(entry)
+        print hosts.top(1, hosts.COUNT)
+        print hosts.top(1, hosts.SIZE)
 
 if __name__ == '__main__':
         unittest.main()
