@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-# Last modified: 
+"""
+Provide the class to keep track of the get requests of each resources,
+and get the top n resources that consumes the most bandwidth.
+Author: Yuan Huang
+"""
 import unittest
 import algorithms
 

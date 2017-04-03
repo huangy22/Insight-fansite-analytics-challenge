@@ -3,14 +3,10 @@ import logging
 #import signal
 import os,sys
 
-#currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-#parentdir = os.path.dirname(currentdir)
-#sys.path.insert(0,parentdir) 
-
 workspace = "./"
-
 log = logging.getLogger()
 log.setLevel(logging.INFO)
+
 ch = logging.StreamHandler(sys.stdout)
 fh = logging.FileHandler(os.path.join(workspace,'process.log'))
 

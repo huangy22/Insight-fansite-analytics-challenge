@@ -1,18 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-# Last modified:
-"""The basic algorithms:
-    nlargest_dict:
-        Given a dictionary with a specified axis as its comparison index,
-        find the n largest elements and return the keys and values.
-    LinkedList:
-        A ascending ordered linked list with a maximum length.
+"""
+Provide find n largest attributes in dictionary and sorted linked list operations.
+Author: Yuan Huang
 """
 import unittest
 import heapq
 
 def nlargest_dict(n_top, dictionary, axis):
-    """Find n largest entries in a dictionary, the sort axis is specified as axis.
+    """
+    Find n largest entries in a dictionary, the sort axis is specified as axis.
     Args:
         n_top(int): the number of top entries
         dict(dict): the data in dictionary

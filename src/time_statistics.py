@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-# Last modified: 
+"""
+Provide the class to keep track of the number of activities in a fixed
+time window, and get the top n busiest periods that have the most activities.
+Author: Yuan Huang
+"""
 import unittest
 import algorithms
 import datetime as dt

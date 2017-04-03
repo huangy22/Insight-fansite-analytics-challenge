@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-# Last modified:
+"""
+Provide the class to keep track of the activities of each hosts,
+and get the n top active hosts.
+Author: Yuan Huang
+"""
 import unittest
 import algorithms
 

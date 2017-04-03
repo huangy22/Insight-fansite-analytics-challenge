@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-# Last modified: 
+"""
+Provide the class to keep track of the activities of each hosts,
+and block the host for a period of time if the host performs n 
+consecutive failed login attempts over 20 seconds.
+Author: Yuan Huang
+"""
 import unittest
 from logger import *
 import datetime as dt
