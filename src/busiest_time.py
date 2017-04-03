@@ -7,73 +7,91 @@ import algorithms
 import datetime as dt
 from collections import deque
 
-TIME_WINDOW = dt.timedelta(hours=1)
+class TimeStatistics(object):
+    def __init__(self, hours=1, n_top=10):
+        self.time_window = dt.timedelta(hours=hours)
+        self.n_top = n_top
 
-N_TOP = 10
+        self.__count_index = 0
+        self.__time_index = 1
 
-COUNT_IDX = 0
-TIME_IDX = 1
+        self.__queue = deque()
+        self.__queue.append(dt.datetime.min)
 
-time_queue = deque()
-time_queue.append(dt.datetime.min)
+        self.__top = algorithms.LinkedList(self.n_top)
+        self.__last_node = algorithms.Node([0, dt.datetime.min])
+        self.__top.sorted_insert_node(self.__last_node)
+        self.__sorted = True
 
-top_list = algorithms.LinkedList(N_TOP)
-last_node = algorithms.Node([0, dt.datetime.min])
-top_list.sorted_insert_node(last_node)
-last_sorted = True
+    def __update_queue(self, entry):
+        time = entry["Time"]
+        if time > self.__queue[-1]:
+            self.__queue.append(time)
+            while self.__queue[0] <= self.__queue[-1]-self.time_window:
+                self.__queue.popleft()
+        else:
+            self.__queue.append(time)
+        return len(self.__queue), self.__queue[-1]
 
-def update_current_window(entry):
-    global time_queue
-    time = entry["Time"]
-    if time > time_queue[-1]:
-        time_queue.append(time)
-        while time_queue[0] <= time_queue[-1]-TIME_WINDOW:
-            time_queue.popleft()
-    else:
-        time_queue.append(time)
-    return len(time_queue), time_queue[-1]
+    def __update_top(self, n, time):
+        if time-self.time_window < self.__last_node.data[self.__time_index]:
+            if n > self.__last_node.data[self.__count_index]:
+                self.__top.replace_data(self.__last_node, [n, time])
+                self.__sorted = False
+                self.__last_node.data = [n, time]
+        else: 
+            if not self.__sorted:
+                self.__last_node = self.__top.sort_node(self.__last_node)
+                self.__sorted = True
+            if self.__top.length < self.__top.max_length or n > self.__top.min()[0]:
+                self.__last_node = self.__top.sorted_insert_data([n, time])
 
-def update_top_list(n, time):
-    global last_node
-    global top_list
-    global last_sorted
+    def update(self, entry):
+        n, time = self.__update_queue(entry)
+        self.__update_top(n, time)
 
-    if time-TIME_WINDOW < last_node.data[TIME_IDX]:
-        if n > last_node.data[COUNT_IDX]:
-            top_list.replace_data(last_node, [n, time])
-            last_sorted = False
-            last_node.data = [n, time]
-    else: 
-        if not last_sorted:
-            last_node = top_list.sort_node(last_node)
-            last_sorted = True
-        if top_list.length < top_list.max_length or n > top_list.min()[0]:
-            last_node = top_list.sorted_insert_data([n, time])
-
-def update_time(entry):
-    n, time = update_current_window(entry)
-    update_top_list(n, time)
-
-def find_busiest_periods():
-    result = top_list.get_list()
-    for data in result:
-        data[1] = (data[1]-TIME_WINDOW).strftime("%d/%b/%Y:%H:%M:%S"+ " -0400")
-    return result
+    def top(self):
+        result = self.__top.get_list()
+        for data in result:
+            data[1] = (data[1]-self.time_window).strftime("%d/%b/%Y:%H:%M:%S"+ " -0400")
+        return result
 
 class TestLoginErr(unittest.TestCase):
     def setUp(self):
-        self.file = "../log_input/log_test2.txt"
-        #self.file = "../log_input/log.txt"
+        time = []
+        time.append(dt.datetime.strptime('01/Jul/1995:00:00:01', "%d/%b/%Y:%H:%M:%S"))
+        time.append(dt.datetime.strptime('01/Jul/1995:01:00:03', "%d/%b/%Y:%H:%M:%S"))
+        time.append(dt.datetime.strptime('01/Jul/1995:01:00:04', "%d/%b/%Y:%H:%M:%S"))
+        time.append(dt.datetime.strptime('01/Jul/1995:02:00:06', "%d/%b/%Y:%H:%M:%S"))
+        time.append(dt.datetime.strptime('01/Jul/1995:02:10:06', "%d/%b/%Y:%H:%M:%S"))
+        time.append(dt.datetime.strptime('01/Jul/1995:03:00:08', "%d/%b/%Y:%H:%M:%S"))
+        time.append(dt.datetime.strptime('01/Jul/1995:05:00:09', "%d/%b/%Y:%H:%M:%S"))
+        time.append(dt.datetime.strptime('01/Jul/1995:07:00:11', "%d/%b/%Y:%H:%M:%S"))
+        time.append(dt.datetime.strptime('01/Jul/1995:08:00:15', "%d/%b/%Y:%H:%M:%S"))
+        time.append(dt.datetime.strptime('01/Jul/1995:08:00:19', "%d/%b/%Y:%H:%M:%S"))
+        time.append(dt.datetime.strptime('01/Jul/1995:08:00:21', "%d/%b/%Y:%H:%M:%S"))
+        time.append(dt.datetime.strptime('01/Jul/1995:10:10:11', "%d/%b/%Y:%H:%M:%S"))
 
-    def test_update_top_list(self):
-        reader = open(self.file, 'r')
-        for line in reader:
-            entry = read_entry.read_entry(line)
-            n, time = update_current_window(entry)
-            update_top_list(n, time)
-        result = top_list.get_list()
-        for data in result:
-            data[1] = (data[1]-TIME_WINDOW).strftime("%d/%b/%Y:%H:%M:%S -0400")
+        self.data = [{"id": 0, "Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[0]},
+                {"id": 1, "Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[1]},
+                {"id": 2, "Host": "B", "Status": 200, "Request_Type": "POST", "Time": time[2]},
+                {"id": 3, "Host": "B", "Status": 200, "Request_Type": "POST", "Time": time[3]},
+                {"id": 4, "Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[4]},
+                {"id": 5, "Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[5]},
+                {"id": 6, "Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[6]},
+                {"id": 7, "Host": "B", "Status": 200, "Request_Type": "POST", "Time": time[7]},
+                {"id": 8, "Host": "A", "Status": 200, "Request_Type": "POST", "Time": time[8]},
+                {"id": 9, "Host": "A", "Status": 401, "Request_Type": "GET",  "Time": time[9]},
+                {"id": 10, "Host": "A", "Status": 200, "Request_Type": "POST", "Time": time[10]},
+                    ]
+        self.time = time
+
+
+    def test_update_top(self):
+        hours = TimeStatistics(hours = 1, n_top = 3)
+        for entry in self.data:
+            hours.update(entry)
+        result = hours.top()
         print result
 
 if __name__ == '__main__':

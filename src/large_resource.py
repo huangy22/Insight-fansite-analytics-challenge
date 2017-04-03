@@ -5,57 +5,92 @@ import unittest
 import read_entry
 import algorithms
 
-COUNT_IDX = 0
-SIZE_IDX = 1
+class ResourceStatistics(object):
+    def __init__(self):
+        self.COUNT = 0
+        self.SIZE = 1
+        self.BANDWIDTH = 2
+        
+        self.__count_index = 0
+        self.__size_index = 1
+        self.__bandwidth_index = 2
 
-RESOURCE = {}
+        self.__resource = {}
 
-def find_large_resources(number, sort_feature):
-    if sort_feature=="Count":
-        idx = COUNT_IDX 
-    elif sort_feature=="Bandwidth":
-        idx = SIZE_IDX
-    return algorithms.nlargest_dict(number, RESOURCE, idx)
+    def update(self, entry):
+        """Add the info of entry into the statistics of each resource.
+        Args:
+            entry(dict): the dictionary of a log info, including keys "Host", "Time",
+            "Request", "Reply", "Size".
+        Returns:
+            None.
+        """
+        res = entry["Request"]
 
-def update_resource(entry):
-    """Add the info of entry into the statistics of each resource.
-    Args:
-        entry(dict): the dictionary of a log info, including keys "Host", "Time",
-        "Request", "Reply", "Size".
-    Returns:
-        None.
-    """
-    entry_res = entry["Request"]
+        if res != "/":
+            if res in self.__resource:
+                self.__resource[res][self.__count_index] += 1 
+                self.__resource[res][self.__bandwidth_index] += entry["Size"]
+                self.__resource[res][self.__size_index] = self.__resource[res][self.__bandwidth_index]\
+                    /self.__resource[res][self.__count_index]
+            else:
+                self.__resource[res] =  [0, 0, 0]
+                self.__resource[res][self.__count_index] = 1 
+                self.__resource[res][self.__size_index] = entry["Size"]
+                self.__resource[res][self.__bandwidth_index] = entry["Size"]
 
-    if entry_res != "/":
-        if entry_res in RESOURCE:
-            RESOURCE[entry_res][COUNT_IDX] += 1 
-            RESOURCE[entry_res][SIZE_IDX] += entry["Size"]
+    def top(self, number, feature):
+        if feature == self.COUNT:
+            idx = self.__count_index 
+        elif feature == self.BANDWIDTH:
+            idx = self.__bandwidth_index
+        elif feature == self.SIZE:
+            idx = self.__size_index
         else:
-            RESOURCE[entry_res] =  [0, 0]
-            RESOURCE[entry_res][COUNT_IDX] = 1 
-            RESOURCE[entry_res][SIZE_IDX] = entry["Size"]
+            raise NotImplementedError
+        return algorithms.nlargest_dict(number, self.__resource, idx)
+
+    def get(self, resource, feature):
+        if feature == self.COUNT:
+            idx = self.__count_index 
+        elif feature == self.BANDWIDTH:
+            idx = self.__bandwidth_index
+        elif feature == self.SIZE:
+            idx = self.__size_index
+        else:
+            raise NotImplementedError
+        return self.__resource[resource][idx]
+
 
 class TestResource(unittest.TestCase):
     def setUp(self):
-        self.file = "../log_input/log_test.txt"
-        #['199.72.81.55 - - [01/Jul/1995:00:00:01 -0400] "GET /history/apollo/ HTTP/1.0" 200 -',
-                     #'220.149.67.62 - - [01/Jul/1995:00:00:27 -0400] "GET /images/KSC-logosmall.gif HTTP/1.0" 200 1204']
+        self.data = [{"Request": "A", "Size": 1},
+                    {"Request": "A", "Size": 2},
+                    {"Request": "A", "Size": 2},
+                    {"Request": "B", "Size": 20},
+                    {"Request": "B", "Size": 3},
+                    {"Request": "C", "Size": 2},
+                    {"Request": "C", "Size": 2},
+                    {"Request": "D", "Size": 2},
+                    {"Request": "E", "Size": 33},
+                    {"Request": "F", "Size": 2},
+                    ]
+
 
     def test_update_resource(self):
-        reader = open(self.file, 'r')
-        for line in reader:
-            entry = read_entry.read_entry(line)
-            update_resource(entry)
-        #print RESOURCE
+        resources = ResourceStatistics()
+        for entry in self.data:
+            resources.update(entry)
+        print "A count: ", resources.get("A", resources.COUNT)
+        print "A size: ", resources.get("A", resources.SIZE)
+        print "A bandwidth: ", resources.get("A", resources.BANDWIDTH)
 
     def test_find_large_resources(self):
-        reader = open(self.file, 'r')
-        for line in reader:
-            entry = read_entry.read_entry(line)
-            update_resource(entry)
-        large_res = find_large_resources(10, "Bandwidth")
-        print large_res
+        resources = ResourceStatistics()
+        for entry in self.data:
+            resources.update(entry)
+        print resources.top(2, resources.COUNT)
+        print resources.top(2, resources.BANDWIDTH)
 
 if __name__ == '__main__':
         unittest.main()
