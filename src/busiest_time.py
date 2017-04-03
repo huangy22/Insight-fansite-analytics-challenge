@@ -42,12 +42,11 @@ def update_top_list(n, time):
         if n > last_node.data[COUNT_IDX]:
             top_list.replace_data(last_node, [n, time])
             last_sorted = False
+            last_node.data = [n, time]
     else: 
         if not last_sorted:
             last_node = top_list.sort_node(last_node)
             last_sorted = True
-        if top_list.length < top_list.max_length or n > top_list.min()[0]:
-            last_node = top_list.sorted_insert_data([n, time])
         if top_list.length < top_list.max_length or n > top_list.min()[0]:
             last_node = top_list.sorted_insert_data([n, time])
 
@@ -63,7 +62,7 @@ def find_busiest_periods():
 
 class TestLoginErr(unittest.TestCase):
     def setUp(self):
-        self.file = "../log_input/log_test.txt"
+        self.file = "../log_input/log_test2.txt"
         #self.file = "../log_input/log.txt"
 
     def test_update_top_list(self):
