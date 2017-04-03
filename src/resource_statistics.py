@@ -6,9 +6,9 @@ import algorithms
 
 class ResourceStatistics(object):
     def __init__(self):
-        self.COUNT = 0
-        self.SIZE = 1
-        self.BANDWIDTH = 2
+        self.count = 0
+        self.size = 1
+        self.bandwidth = 2
         
         self.__count_index = 0
         self.__size_index = 1
@@ -31,30 +31,31 @@ class ResourceStatistics(object):
                 self.__resource[res][self.__count_index] += 1 
                 self.__resource[res][self.__bandwidth_index] += entry["Size"]
                 self.__resource[res][self.__size_index] = self.__resource[res][self.__bandwidth_index]\
-                    /self.__resource[res][self.__count_index]
+                    /float(self.__resource[res][self.__count_index])
             else:
                 self.__resource[res] =  [0, 0, 0]
                 self.__resource[res][self.__count_index] = 1 
-                self.__resource[res][self.__size_index] = entry["Size"]
+                self.__resource[res][self.__size_index] = float(entry["Size"])
                 self.__resource[res][self.__bandwidth_index] = entry["Size"]
 
     def top(self, number, feature):
-        if feature == self.COUNT:
+        if feature == self.count:
             idx = self.__count_index 
-        elif feature == self.BANDWIDTH:
+        elif feature == self.bandwidth:
             idx = self.__bandwidth_index
-        elif feature == self.SIZE:
+        elif feature == self.size:
             idx = self.__size_index
         else:
             raise NotImplementedError
-        return algorithms.nlargest_dict(number, self.__resource, idx)
+        keys, values = algorithms.nlargest_dict(number, self.__resource, idx)
+        return zip(values, keys)
 
     def get(self, resource, feature):
-        if feature == self.COUNT:
+        if feature == self.count:
             idx = self.__count_index 
-        elif feature == self.BANDWIDTH:
+        elif feature == self.bandwidth:
             idx = self.__bandwidth_index
-        elif feature == self.SIZE:
+        elif feature == self.size:
             idx = self.__size_index
         else:
             raise NotImplementedError
@@ -64,15 +65,15 @@ class ResourceStatistics(object):
 class TestResource(unittest.TestCase):
     def setUp(self):
         self.data = [{"Request": "A", "Size": 1},
-                    {"Request": "A", "Size": 2},
-                    {"Request": "A", "Size": 2},
-                    {"Request": "B", "Size": 20},
-                    {"Request": "B", "Size": 3},
-                    {"Request": "C", "Size": 2},
-                    {"Request": "C", "Size": 2},
-                    {"Request": "D", "Size": 2},
-                    {"Request": "E", "Size": 33},
-                    {"Request": "F", "Size": 2},
+                     {"Request": "A", "Size": 2},
+                     {"Request": "A", "Size": 2},
+                     {"Request": "B", "Size": 20},
+                     {"Request": "B", "Size": 3},
+                     {"Request": "C", "Size": 2},
+                     {"Request": "C", "Size": 2},
+                     {"Request": "D", "Size": 2},
+                     {"Request": "E", "Size": 33},
+                     {"Request": "F", "Size": 2},
                     ]
 
 
@@ -80,16 +81,25 @@ class TestResource(unittest.TestCase):
         resources = ResourceStatistics()
         for entry in self.data:
             resources.update(entry)
-        print "A count: ", resources.get("A", resources.COUNT)
-        print "A size: ", resources.get("A", resources.SIZE)
-        print "A bandwidth: ", resources.get("A", resources.BANDWIDTH)
+        self.assertEqual(resources.get("A", resources.count), 3)
+        self.assertEqual(resources.get("A", resources.size), 5.0/3)
+        self.assertEqual(resources.get("A", resources.bandwidth), 5)
 
     def test_find_large_resources(self):
         resources = ResourceStatistics()
         for entry in self.data:
             resources.update(entry)
-        print resources.top(2, resources.COUNT)
-        print resources.top(2, resources.BANDWIDTH)
+        top = resources.top(2, resources.count)
+        self.assertEqual(top[0], (3, "A")) 
+        self.assertEqual(top[1], (2, "C")) 
+
+        top = resources.top(2, resources.bandwidth)
+        self.assertEqual(top[0], (33, "E")) 
+        self.assertEqual(top[1], (23, "B")) 
+
+        top = resources.top(2, resources.size)
+        self.assertEqual(top[0], (33, "E")) 
+        self.assertEqual(top[1], (11.5, "B")) 
 
 if __name__ == '__main__':
         unittest.main()

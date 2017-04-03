@@ -35,7 +35,7 @@ class TimeStatistics(object):
     def __update_top(self, n, time):
         if time-self.time_window < self.__last_node.data[self.__time_index]:
             if n > self.__last_node.data[self.__count_index]:
-                self.__top.replace_data(self.__last_node, [n, time])
+                self.__last_node.replace_data([n, time])
                 self.__sorted = False
                 self.__last_node.data = [n, time]
         else: 
@@ -50,7 +50,7 @@ class TimeStatistics(object):
         self.__update_top(n, time)
 
     def top(self):
-        result = self.__top.get_list()
+        result = self.__top.get_list(order="descend")
         for data in result:
             data[1] = (data[1]-self.time_window).strftime("%d/%b/%Y:%H:%M:%S"+ " -0400")
         return result
@@ -91,7 +91,9 @@ class TestLoginErr(unittest.TestCase):
         for entry in self.data:
             hours.update(entry)
         result = hours.top()
-        print result
+        self.assertEquals(result[0], [3, '01/Jul/1995:07:00:21 -0400'])
+        self.assertEquals(result[1], [2, '01/Jul/1995:01:10:06 -0400'])
+        self.assertEquals(result[2], [2, '01/Jul/1995:00:00:04 -0400'])
 
 if __name__ == '__main__':
         unittest.main()

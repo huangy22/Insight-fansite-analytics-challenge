@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 # Last modified: 
 import unittest
+from logger import *
 import datetime as dt
 
 class BlockedHosts(object):
@@ -79,31 +80,37 @@ class TestLoginErr(unittest.TestCase):
         time.append(dt.datetime.strptime('01/Jul/1995:00:00:21', "%d/%b/%Y:%H:%M:%S"))
         time.append(dt.datetime.strptime('01/Jul/1995:00:10:11', "%d/%b/%Y:%H:%M:%S"))
 
-        self.data = [{"id": 0, "Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[0]},
-                {"id": 1, "Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[1]},
-                {"id": 2, "Host": "B", "Status": 200, "Request_Type": "POST", "Time": time[2]},
-                {"id": 3, "Host": "B", "Status": 200, "Request_Type": "POST", "Time": time[3]},
-                {"id": 4, "Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[4]},
-                {"id": 5, "Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[5]},
-                {"id": 6, "Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[6]},
-                {"id": 7, "Host": "B", "Status": 200, "Request_Type": "POST", "Time": time[7]},
-                {"id": 8, "Host": "A", "Status": 200, "Request_Type": "POST", "Time": time[8]},
-                {"id": 9, "Host": "A", "Status": 401, "Request_Type": "GET",  "Time": time[9]},
-                {"id": 10, "Host": "A", "Status": 200, "Request_Type": "POST", "Time": time[10]},
+        self.data = [{"Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[0]},
+                {"Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[1]},
+                {"Host": "B", "Status": 200, "Request_Type": "POST", "Time": time[2]},
+                {"Host": "B", "Status": 200, "Request_Type": "POST", "Time": time[3]},
+                {"Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[4]},
+                {"Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[5]},
+                {"Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[6]},
+                {"Host": "B", "Status": 200, "Request_Type": "POST", "Time": time[7]},
+                {"Host": "A", "Status": 200, "Request_Type": "POST", "Time": time[8]},
+                {"Host": "A", "Status": 401, "Request_Type": "GET",  "Time": time[9]},
+                {"Host": "A", "Status": 200, "Request_Type": "POST", "Time": time[10]},
                     ]
         self.time = time
 
     def test_time_difference(self):
         time1 = dt.datetime.strptime('01/Jul/1995:00:00:01', "%d/%b/%Y:%H:%M:%S")
         time2 = dt.datetime.strptime('02/Jul/1995:03:00:01', "%d/%b/%Y:%H:%M:%S")
-        print time_difference(time1, time2)
+        #difference is one day and three hours
+        self.assertEqual(time_difference(time1, time2), 24*60*60+3*60*60)
 
     def test_update(self):
         blocked = BlockedHosts()
-        for entry in self.data:
+        id_list = []
+        #for entry in self.data:
+        for i in range(len(self.data)):
+            entry = self.data[i]
             is_blocked = blocked.update(entry)
             if is_blocked:
-                print entry
+                id_list.append(i)
+        self.assertEqual(tuple(id_list), (5,6,8,9))
+                #log.info("UnitTest: To block: {0}".format(entry))
 
 if __name__ == '__main__':
         unittest.main()
