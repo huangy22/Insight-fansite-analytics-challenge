@@ -9,11 +9,24 @@ import unittest
 import algorithms
 
 class ResourceStatistics(object):
+    """
+    The class that records the information for each resources, including
+    the times of request, the size and consumed bandwidth.
+    """
     def __init__(self):
+        """
+        Contains a dictionary __resource with resource names as keys and a list as values.
+        The value list has three items: value[__count_index] is the times of request
+        for each resource, value[__size_index] is the size of resource,
+        value[__bandwidth_index] is the bandwidth consumed by each resource..
+
+        Count, size, bandwidth are public variables which can be used when assigning
+        the feature to sort by in the top() function.
+        """
         self.count = 0
         self.size = 1
         self.bandwidth = 2
-        
+
         self.__count_index = 0
         self.__size_index = 1
         self.__bandwidth_index = 2
@@ -23,28 +36,37 @@ class ResourceStatistics(object):
     def update(self, entry):
         """Add the info of entry into the statistics of each resource.
         Args:
-            entry(dict): the dictionary of a log info, including keys "Host", "Time",
-            "Request", "Reply", "Size".
-        Returns:
-            None.
+            entry(dict): the dictionary of a log info
         """
         res = entry["Request"]
 
         if res != "/":
             if res in self.__resource:
-                self.__resource[res][self.__count_index] += 1 
+                self.__resource[res][self.__count_index] += 1
                 self.__resource[res][self.__bandwidth_index] += entry["Size"]
-                self.__resource[res][self.__size_index] = self.__resource[res][self.__bandwidth_index]\
-                    /float(self.__resource[res][self.__count_index])
+                self.__resource[res][self.__size_index] = self.__resource[res]\
+                    [self.__bandwidth_index]/float(self.__resource[res][self.__count_index])
             else:
-                self.__resource[res] =  [0, 0, 0]
-                self.__resource[res][self.__count_index] = 1 
+                self.__resource[res] = [0, 0, 0]
+                self.__resource[res][self.__count_index] = 1
                 self.__resource[res][self.__size_index] = float(entry["Size"])
                 self.__resource[res][self.__bandwidth_index] = entry["Size"]
 
     def top(self, number, feature):
+        """
+        Get the top resources list with a specified number and sorted by specified feature.
+        Args:
+            number(int): the number of top resources.
+            feature: can only take values self.count, self.size or self.bandwidth.
+        Returns:
+            A list of tuples. In each tuple, the first element is the count/size/bandwidth, the
+            second item is the name of the resource.
+        Raises:
+            NotImplementedError: Error occurs when choosen feature is not self.count,
+            self.size, or self.bandwidth.
+        """
         if feature == self.count:
-            idx = self.__count_index 
+            idx = self.__count_index
         elif feature == self.bandwidth:
             idx = self.__bandwidth_index
         elif feature == self.size:
@@ -52,11 +74,22 @@ class ResourceStatistics(object):
         else:
             raise NotImplementedError
         keys, values = algorithms.nlargest_dict(number, self.__resource, idx)
+
         return zip(values, keys)
 
     def get(self, resource, feature):
+        """
+        Get the specified feature of a certain host.
+        Args:
+            feature: can only take values self.count, self.size, self.bandwidth.
+        Returns:
+            the value of the feature of the resource.
+        Raises:
+            NotImplementedError: Error occurs when choosen feature is not self.count,
+            self.size or self.bandwidth.
+        """
         if feature == self.count:
-            idx = self.__count_index 
+            idx = self.__count_index
         elif feature == self.bandwidth:
             idx = self.__bandwidth_index
         elif feature == self.size:
@@ -94,16 +127,16 @@ class TestResource(unittest.TestCase):
         for entry in self.data:
             resources.update(entry)
         top = resources.top(2, resources.count)
-        self.assertEqual(top[0], (3, "A")) 
-        self.assertEqual(top[1], (2, "C")) 
+        self.assertEqual(top[0], (3, "A"))
+        self.assertEqual(top[1], (2, "C"))
 
         top = resources.top(2, resources.bandwidth)
-        self.assertEqual(top[0], (33, "E")) 
-        self.assertEqual(top[1], (23, "B")) 
+        self.assertEqual(top[0], (33, "E"))
+        self.assertEqual(top[1], (23, "B"))
 
         top = resources.top(2, resources.size)
-        self.assertEqual(top[0], (33, "E")) 
-        self.assertEqual(top[1], (11.5, "B")) 
+        self.assertEqual(top[0], (33, "E"))
+        self.assertEqual(top[1], (11.5, "B"))
 
 if __name__ == '__main__':
-        unittest.main()
+    unittest.main()

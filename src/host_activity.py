@@ -9,8 +9,19 @@ import unittest
 import algorithms
 
 class HostActivity(object):
+    """
+    The class that record the number of activities and total size of resources by each
+    host.
+    """
     def __init__(self):
+        """
+        Contains a dictionary __host with host names as keys and a list as values.
+        The value list has two items: value[__count_index] is the count of activities of each
+        host, value[__size_index] is the total size of resources requested by the host.
 
+        Count and size are public variables which can be used when assigning
+        the feature to sort by in the top() function.
+        """
         self.count = 0
         self.size = 1
 
@@ -22,10 +33,7 @@ class HostActivity(object):
     def update(self, entry):
         """Add the info of entry into the statistics of each host.
         Args:
-            entry(dict): the dictionary of a log info, including keys "Host", "Time",
-            "Request", "Reply", "Size".
-        Returns:
-            None.
+            entry(dict): the dictionary of a log item.
         """
         if entry["Host"] in self.__host:
             self.__host[entry["Host"]][self.__count_index] += 1
@@ -36,6 +44,17 @@ class HostActivity(object):
             self.__host[entry["Host"]][self.__size_index] = entry["Size"]
 
     def top(self, number, feature):
+        """
+        Get the top hosts list with a specified number and sorted by specified feature.
+        Args:
+            number(int): the number of top hosts.
+            feature: can only take values self.count or self.size.
+        Returns:
+            A list of tuples. In each tuple, the first element is the count/size, the
+            second item is the name of the host.
+        Raises:
+            NotImplementedError: Error occurs when choosen feature is not self.count or self.size.
+        """
         if feature == self.count:
             idx = self.__count_index
         elif feature == self.size:
@@ -46,6 +65,15 @@ class HostActivity(object):
         return zip(values, keys)
 
     def get(self, host, feature):
+        """
+        Get the specified feature of a certain host.
+        Args:
+            feature: can only take values self.count or self.size.
+        Returns:
+            the value of the feature of the host.
+        Raises:
+            NotImplementedError: Error occurs when choosen feature is not self.count or self.size.
+        """
         if feature == self.count:
             idx = self.__count_index
         elif feature == self.size:

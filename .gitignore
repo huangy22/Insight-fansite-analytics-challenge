@@ -9,7 +9,6 @@ log.txt
 log_test2.txt
 
 ;; extensions to ignore
-*.log
 *.pot
 *.pyc
 
