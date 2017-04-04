@@ -9,12 +9,13 @@ import re
 import datetime as dt
 import unittest
 
+QUOTES = ur'[\"\u2018\u2019\u201c\u201d\u0060\u00b4]'
 # Regex for the Apache common log format.
 PARTS = [r'(?P<Host>\S+)',                   # host %h
          r'\S+',                             # indent %l (unused)
          r'(?P<User>\S+)',                   # user %u
          r'\[(?P<Time>.+)\]',                # time %t
-         r'"(?P<Request>.*)"',               # request "%r"
+         r'(?P<Request>.*)',                 # request "%r"
          r'(?P<Status>[0-9]+)',              # status %>s
          r'(?P<Size>\S+)',                   # size %b (careful, can be '-')
         ]
@@ -51,14 +52,14 @@ def format_standardize(entry_dict):
     """
     # Clean up the request.
     request_list = entry_dict["Request"].split()
+    request_list[0] = (request_list[0].decode('utf-8').strip())[1:]
 
     if request_list[0] in ["GET", "POST", "HEAD"]:
         entry_dict["Request_Type"] = request_list[0]
         entry_dict["Request"] = request_list[1]
     else:
         entry_dict["Request_Type"] = None
-        raise TypeError("Type of request is not found in the entry: {0}"
-                        .format(entry_dict["Request"]))
+        raise TypeError("Request is not correct in the entry: {0}".format(entry_dict["Request"]))
 
     # Some dashes become None.
     if entry_dict["User"] == "-":

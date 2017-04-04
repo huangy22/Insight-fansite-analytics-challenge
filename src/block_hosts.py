@@ -98,7 +98,7 @@ class BlockedHosts(object):
         if host in self.__block:
             is_blocked = self.__update_block(host, time)
         else:
-            if entry["Request_Type"] == "POST" and entry["Status"] == 401:
+            if entry["Request"] == "/login" and entry["Status"] == 401:
                 if host in self.__watch:
                     self.__update_watch(host, time)
                 else:

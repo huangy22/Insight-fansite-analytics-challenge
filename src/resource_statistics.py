@@ -8,6 +8,10 @@ Author: Yuan Huang
 import unittest
 import algorithms
 
+COUNT = 0
+SIZE = 1
+BANDWIDTH = 2
+
 class ResourceStatistics(object):
     """
     The class that records the information for each resources, including
@@ -23,10 +27,6 @@ class ResourceStatistics(object):
         Count, size, bandwidth are public variables which can be used when assigning
         the feature to sort by in the top() function.
         """
-        self.count = 0
-        self.size = 1
-        self.bandwidth = 2
-
         self.__count_index = 0
         self.__size_index = 1
         self.__bandwidth_index = 2
@@ -57,19 +57,19 @@ class ResourceStatistics(object):
         Get the top resources list with a specified number and sorted by specified feature.
         Args:
             number(int): the number of top resources.
-            feature: can only take values self.count, self.size or self.bandwidth.
+            feature: can only take values COUNT, SIZE or BANDWIDTH.
         Returns:
             A list of tuples. In each tuple, the first element is the count/size/bandwidth, the
             second item is the name of the resource.
         Raises:
-            NotImplementedError: Error occurs when choosen feature is not self.count,
-            self.size, or self.bandwidth.
+            NotImplementedError: Error occurs when choosen feature is not COUNT,
+            SIZE, or BANDWIDTH.
         """
-        if feature == self.count:
+        if feature == COUNT:
             idx = self.__count_index
-        elif feature == self.bandwidth:
+        elif feature == BANDWIDTH:
             idx = self.__bandwidth_index
-        elif feature == self.size:
+        elif feature == SIZE:
             idx = self.__size_index
         else:
             raise NotImplementedError
@@ -81,18 +81,18 @@ class ResourceStatistics(object):
         """
         Get the specified feature of a certain host.
         Args:
-            feature: can only take values self.count, self.size, self.bandwidth.
+            feature: can only take values COUNT, SIZE, BANDWIDTH.
         Returns:
             the value of the feature of the resource.
         Raises:
-            NotImplementedError: Error occurs when choosen feature is not self.count,
-            self.size or self.bandwidth.
+            NotImplementedError: Error occurs when choosen feature is not COUNT,
+            SIZE or BANDWIDTH.
         """
-        if feature == self.count:
+        if feature == COUNT:
             idx = self.__count_index
-        elif feature == self.bandwidth:
+        elif feature == BANDWIDTH:
             idx = self.__bandwidth_index
-        elif feature == self.size:
+        elif feature == SIZE:
             idx = self.__size_index
         else:
             raise NotImplementedError

@@ -62,7 +62,7 @@ class LinkedList:
             after the insertion.
         """
         new_node = Node(new_data)
-        new_node = self.sorted_insert_node(new_node)
+        self.sorted_insert_node(new_node)
         return new_node
 
     def sorted_insert_node(self, new_node):
