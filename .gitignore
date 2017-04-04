@@ -5,8 +5,8 @@
 ;;
 
 ;; input files to ignore
-log.txt
-log_test2.txt
+log_input/*
+!log_input/log_test.txt
 
 ;; extensions to ignore
 *.pot
