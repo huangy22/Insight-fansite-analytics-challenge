@@ -8,23 +8,23 @@ Author: Yuan Huang
 import unittest
 import datetime as dt
 from collections import deque
-import algorithms
+import data_structures
 
 class TimeStatistics(object):
     """
     The class that keep track of the time window with a fixed period with highest
     number of activities.
     Args:
-        hours(float):
-        n_top(int): 
+        hours(float): the length of time window in unit of hours
+        n_top(int): the number of time windows with most activities
+    Public variables:
+        time_window(timedelta): the length of the time window
+        n_top(int): the number of top time periods to keep track on
     """
     # 
     (__COUNT, __TIME) = (0, 1)
     def __init__(self, hours=1, n_top=10):
         """
-        Public variables:
-            time_window(timedelta): the length of the specified time window
-            n_top(int): the number of top time periods to keep track on
         Private variables:
             __queue(deque): a queue stores the time of each activity in the current time window
             __top_overlap(LinkedList): an ascending ordered linked list that stores the top n
@@ -42,39 +42,43 @@ class TimeStatistics(object):
 
         self.__queue = deque()
 
-        self.__top_overlap = algorithms.LinkedList(self.n_top)
+        self.__top_overlap = data_structures.LinkedList(self.n_top)
 
         self.__last_node = None
         self.__sorted = True
-        self.__top_no_overlap = algorithms.LinkedList(self.n_top)
-
-                #The data on each node of the linked list is a list. 
-                #data[__COUNT] stores the number of activities, while
-                #data[__TIME] stores the ending time of this time period.
+        self.__top_no_overlap = data_structures.LinkedList(self.n_top)
 
 
     def __update_queue(self, entry):
         """
         Given a new entry, push it into the queue of the current window and pop
-        the earlier posts that is no longer in the window.
+        the earlier posts that is no longer in the window. Returns a list of completed
+        time windows with its number of logs and starting time.
         Args:
             entry(dict): the new log dictionary.
         Returns:
-            is_complete(bool): if the returned queue is of full length of the time window
-            number(int): number of logs in the queue in the last time window
-            time(datetime): the starting time of the last time window
+            datalist(list): A list of length-2 lists, e.g. [number, time]. number(int) is number
+            of logs in a last time window; time(datetime) is the starting
+            time of a time window.
         """
         time = entry["Time"]
-        datalist = []
+
+        # Push the new event into the queue
         self.__queue.append(time)
+
+        datalist = []
         n_same_time = 0
         if len(self.__queue) > 0:
+            # Check if the new time exceeds the previous time window
             endtime = self.__queue[0] + self.time_window
             if time >= endtime:
+                # Pop out the oldest events in the queue to make the duration of the queue
+                # smaller than the time window
                 while len(self.__queue) > 1 and self.__queue[0] <= time-self.time_window:
                     head = self.__queue.popleft()
+                    # Append the number and starting time to the return list
                     if head != self.__queue[0]:
-                        datalist.append((len(self.__queue) + n_same_time, head))
+                        datalist.append([len(self.__queue) + n_same_time, head])
                         n_same_time = 0
                     else:
                         n_same_time += 1
@@ -88,30 +92,35 @@ class TimeStatistics(object):
             number(int): number of activities in the current queue.
             time(datetime): starting time in the current queue.
         """
-        if self.__top_overlap.length < self.__top_overlap.max_length or number >= self.__top_overlap.min()[0]:
-            self.__top_overlap.sorted_insert_data([number, time])
+        new_data = [number, time]
+        if self.__top_overlap.length < self.__top_overlap.max_length or\
+            tuple(new_data) > tuple(self.__top_overlap.min()):
+            self.__top_overlap.sorted_insert_data(new_data)
 
     def __update_top_without_overlap(self, number, time):
         """
         Given the number of logs and starting time of the current time window,
-        update the __top_no_overlap list. The time window in __top_no_overlap don't
+        update the __top_no_overlap list. The time windows in __top_no_overlap don't
         overlap with each other.
         Args:
             number(int): number of activities in the current queue.
             time(datetime): starting time in the current queue.
         """
 
+        new_data = [number, time]
         if self.__last_node is None:
-            self.__last_node = self.__top_no_overlap.sorted_insert_data([number, time])
+            self.__last_node = self.__top_no_overlap.sorted_insert_data(new_data)
         else:
             # Check whether the current time window overlaps with others in __top_overlap
-            if time-self.time_window < self.__last_node.data[self.__TIME]:
+            if time - self.time_window < self.__last_node.data[self.__TIME]:
+
                 # The time window overlaps with the last time window pushed to __top_overlap
-                if [number, time] > self.__last_node.data:
+                if tuple(new_data) > tuple(self.__last_node.data):
                     # Replace the number of logs if the current number is larger
-                    self.__last_node.replace_data([number, time])
+                    self.__last_node.replace_data(new_data)
                     self.__sorted = False
-                    self.__last_node.data = [number, time]
+                    self.__last_node.data = new_data
+
             else:
                 # The time window doesn't overlap with any time windows in __top_overlap
                 if not self.__sorted:
@@ -120,10 +129,11 @@ class TimeStatistics(object):
                     self.__sorted = True
 
                 if self.__top_no_overlap.length < self.__top_no_overlap.max_length\
-                   or number > self.__top_no_overlap.min()[0]:
+                   or tuple(new_data) > tuple(self.__top_no_overlap.min()):
+
                     # Push the current time window to the top list when the top list is not
                     # full or the number of logs is larger than the smallest in the top list
-                    self.__last_node = self.__top_no_overlap.sorted_insert_data([number, time])
+                    self.__last_node = self.__top_no_overlap.sorted_insert_data(new_data)
 
     def update(self, entry):
         """
@@ -139,8 +149,8 @@ class TimeStatistics(object):
 
     def finalize(self, entry):
         """
-        At the end of file, collect the time window that is not full but contains
-        the events in the last period of time.
+        At the end of file, collect the time windows that is not with one full hour
+        but contains the events in the last period of time.
         """
         fake_entry = entry
         fake_entry["Time"] = entry["Time"] + self.time_window
@@ -209,14 +219,14 @@ class TestTime(unittest.TestCase):
         hours.finalize(final)
 
         result = hours.top()
-        self.assertEquals(result[0], [5, '01/Jul/1995:08:00:11 -0400'])
-        self.assertEquals(result[1], [3, '01/Jul/1995:08:00:13 -0400'])
-        self.assertEquals(result[2], [3, '01/Jul/1995:01:00:03 -0400'])
+        self.assertEquals(result[0], [5, '01/Jul/1995:08:00:11 '])
+        self.assertEquals(result[1], [3, '01/Jul/1995:08:00:13 '])
+        self.assertEquals(result[2], [3, '01/Jul/1995:01:00:03 '])
 
         result2 = hours.top_no_overlap()
-        self.assertEquals(result2[0], [5, '01/Jul/1995:08:00:11 -0400'])
-        self.assertEquals(result2[1], [3, '01/Jul/1995:01:00:03 -0400'])
-        self.assertEquals(result2[2], [2, '01/Jul/1995:02:00:06 -0400'])
+        self.assertEquals(result2[0], [5, '01/Jul/1995:08:00:11 '])
+        self.assertEquals(result2[1], [3, '01/Jul/1995:01:00:03 '])
+        self.assertEquals(result2[2], [2, '01/Jul/1995:02:00:06 '])
 
 if __name__ == '__main__':
     unittest.main()

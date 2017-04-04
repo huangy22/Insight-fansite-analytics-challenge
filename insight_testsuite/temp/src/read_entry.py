@@ -6,9 +6,9 @@ into a dictionary.
 Author: Yuan Huang
 """
 import re
+import unittest
 import datetime as dt
 from dateutil import parser
-import unittest
 
 # Regex for the Apache common log format.
 PARTS = [r'(?P<Host>\S+)',                   # host %h
@@ -31,7 +31,6 @@ class FixedOffset(dt.tzinfo):
     """Fixed offset in minutes east from UTC."""
 
     def __init__(self, string):
-        #import pudb ; pudb.set_trace()
         if string[0] == '-':
             direction = -1
             string = string[1:]
@@ -47,7 +46,7 @@ class FixedOffset(dt.tzinfo):
         min_offset = hr_offset * 60 + min_offset
         min_offset = direction * min_offset
 
-        self.__offset = dt.timedelta(minutes = min_offset)
+        self.__offset = dt.timedelta(minutes=min_offset)
 
         self.__name = string
 
@@ -58,7 +57,6 @@ class FixedOffset(dt.tzinfo):
         return self.__name
 
     def dst(self, dt):
-        #return timedelta(0)
         return self.__offset
 
     def __repr__(self):
@@ -86,7 +84,7 @@ def format_standardize(entry_dict):
         dictionary:
             Request is seperated into Request_Type(GET,POST,HEAD)
             and Request(The name of resource). '-' is turned into None (in User)
-            or 0 (in Size and Status). Time is seperated into Time and TimeZone.
+            or 0 (in Size and Status). Time is transferred into a datetime object.
     """
     # Clean up the request.
     request_list = entry_dict["Request"].split()
@@ -131,8 +129,7 @@ def read_entry(line):
     Returns:
         dictionary:
             A dictionary with keys "Host"(str), "User"(str), "Time"(datetime),
-            "TimeZone"(str), "Request_Type"(str, GET/POST/HEAD),
-            "Request"(str), "Status"(int), "Size"(int)
+            "Request_Type"(str, GET/POST/HEAD), "Request"(str), "Status"(int), "Size"(int)
     """
 
     # Use regular expression to find the patterns in the log string
