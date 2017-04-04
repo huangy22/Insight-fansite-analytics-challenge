@@ -155,7 +155,7 @@ class TimeStatistics(object):
         """
         result = self.__top_overlap.get_list(order="descend")
         for data in result:
-            data[1] = data[1].strftime("%d/%b/%Y:%H:%M:%S"+ " -0400")
+            data[1] = data[1].strftime("%d/%b/%Y:%H:%M:%S %z")
         return result
 
     def top_no_overlap(self):
@@ -167,7 +167,7 @@ class TimeStatistics(object):
         """
         result = self.__top_no_overlap.get_list(order="descend")
         for data in result:
-            data[1] = data[1].strftime("%d/%b/%Y:%H:%M:%S"+ " -0400")
+            data[1] = data[1].strftime("%d/%b/%Y:%H:%M:%S %z")
         return result
 
 class TestTime(unittest.TestCase):

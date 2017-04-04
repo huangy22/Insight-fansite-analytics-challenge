@@ -7,9 +7,9 @@ Author: Yuan Huang
 """
 import re
 import datetime as dt
+from dateutil import parser
 import unittest
 
-QUOTES = ur'[\"\u2018\u2019\u201c\u201d\u0060\u00b4]'
 # Regex for the Apache common log format.
 PARTS = [r'(?P<Host>\S+)',                   # host %h
          r'\S+',                             # indent %l (unused)
@@ -27,6 +27,43 @@ PATTERN = re.compile(r'\s+'.join(PARTS)+r'\s*\Z')
 MONTH_MAP = {'Jan': 1, 'Feb': 2, 'Mar':3, 'Apr':4, 'May':5, 'Jun':6, 'Jul':7,
              'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
 
+class FixedOffset(dt.tzinfo):
+    """Fixed offset in minutes east from UTC."""
+
+    def __init__(self, string):
+        #import pudb ; pudb.set_trace()
+        if string[0] == '-':
+            direction = -1
+            string = string[1:]
+        elif string[0] == '+':
+            direction = +1
+            string = string[1:]
+        else:
+            direction = +1
+            string = string
+
+        hr_offset = int(string[0:2], 10)
+        min_offset = int(string[2:3], 10)
+        min_offset = hr_offset * 60 + min_offset
+        min_offset = direction * min_offset
+
+        self.__offset = dt.timedelta(minutes = min_offset)
+
+        self.__name = string
+
+    def utcoffset(self, dt):
+        return self.__offset
+
+    def tzname(self, dt):
+        return self.__name
+
+    def dst(self, dt):
+        #return timedelta(0)
+        return self.__offset
+
+    def __repr__(self):
+        return repr(self.__name)
+
 def apachetime(tstr):
     """
     Transform the time string in Apache time format (without timezone information)
@@ -36,8 +73,9 @@ def apachetime(tstr):
     Returns:
         datetime object.
     """
+    tz = FixedOffset(tstr[21:26])
     return dt.datetime(int(tstr[7:11]), MONTH_MAP[tstr[3:6]], int(tstr[0:2]),
-                       int(tstr[12:14]), int(tstr[15:17]), int(tstr[18:20]))
+                       int(tstr[12:14]), int(tstr[15:17]), int(tstr[18:20]), tzinfo=tz)
 
 def format_standardize(entry_dict):
     """
@@ -52,14 +90,17 @@ def format_standardize(entry_dict):
     """
     # Clean up the request.
     request_list = entry_dict["Request"].split()
-    request_list[0] = (request_list[0].decode('utf-8').strip())[1:]
+    entry_dict["Request_Type"] = None
 
-    if request_list[0] in ["GET", "POST", "HEAD"]:
-        entry_dict["Request_Type"] = request_list[0]
+    if len(request_list) >= 2:
         entry_dict["Request"] = request_list[1]
+        request_list[0] = (request_list[0].decode('utf-8').strip())[1:]
+        if request_list[0] in ["GET", "POST", "HEAD"]:
+            entry_dict["Request_Type"] = request_list[0]
+        else:
+            raise TypeError("Request Type is GET/POST/HEAD in the entry: {0}".format(entry_dict["Request_Type"]))
     else:
-        entry_dict["Request_Type"] = None
-        raise TypeError("Request is not correct in the entry: {0}".format(entry_dict["Request"]))
+        raise TypeError("Request format is not correct in the entry: {0}".format(entry_dict["Request"]))
 
     # Some dashes become None.
     if entry_dict["User"] == "-":
@@ -78,9 +119,7 @@ def format_standardize(entry_dict):
         entry_dict["Status"] = int(entry_dict["Status"])
 
     # Convert the timestamp into a datetime object. Accept the server's time zone.
-    time, zone = entry_dict["Time"].split()
-    entry_dict["Time"] = apachetime(time)
-    entry_dict["TimeZone"] = zone
+    entry_dict["Time"] = apachetime(entry_dict["Time"])
     return entry_dict
 
 def read_entry(line):
@@ -116,8 +155,8 @@ class TestReadEntry(unittest.TestCase):
         """
         Set up two lines of Apache log.
         """
-        self.file = ['199.72.81.55 - - [01/Jul/1995:00:00:01 -0000] "POST /login HTTP/1.0" 401 -',
-                     '220.149.67.62 - - [01/Sep/1995:00:00:27 -0000] "GET \
+        self.file = ['199.72.81.55 - - [01/Jul/1995:00:00:01 -0400] "POST /login HTTP/1.0" 401 -',
+                     '220.149.67.62 - - [01/Sep/1995:00:00:27 -0400] "GET \
                      /images/KSC-logosmall.gif HTTP/1.0" 200 1204']
 
     def test_read_entry(self):
@@ -126,8 +165,7 @@ class TestReadEntry(unittest.TestCase):
         """
         entry_dict = read_entry(self.file[0])
         self.assertEqual(entry_dict["Host"], "199.72.81.55")
-        self.assertEqual(entry_dict["Time"], dt.datetime.strptime('01/Jul/1995:00:00:01',
-                                                                  "%d/%b/%Y:%H:%M:%S"))
+        self.assertEqual(entry_dict["Time"], parser.parse("01 Jul 1995 00:00:01 -0400"))
         self.assertEqual(entry_dict["Request_Type"], "POST")
         self.assertEqual(entry_dict["Request"], "/login")
         self.assertEqual(entry_dict["Status"], 401)
@@ -135,13 +173,10 @@ class TestReadEntry(unittest.TestCase):
 
         entry_dict = read_entry(self.file[1])
         self.assertEqual(entry_dict["Host"], "220.149.67.62")
-        self.assertEqual(entry_dict["Time"], dt.datetime.strptime('01/Sep/1995:00:00:27',
-                                                                  "%d/%b/%Y:%H:%M:%S"))
         self.assertEqual(entry_dict["Request_Type"], "GET")
         self.assertEqual(entry_dict["Request"], "/images/KSC-logosmall.gif")
         self.assertEqual(entry_dict["Status"], 200)
         self.assertEqual(entry_dict["Size"], 1204)
-
 
 if __name__ == '__main__':
     unittest.main()
