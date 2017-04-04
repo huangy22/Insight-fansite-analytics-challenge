@@ -7,6 +7,7 @@
 ;; input files to ignore
 log.txt
 log_test2.txt
+log_test_err.txt
 
 ;; extensions to ignore
 *.pot
