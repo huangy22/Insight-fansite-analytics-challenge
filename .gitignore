@@ -9,6 +9,7 @@ log_input/*
 !log_input/log_test.txt
 
 ;; extensions to ignore
+*.log
 *.pot
 *.pyc
 
