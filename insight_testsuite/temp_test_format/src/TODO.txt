@@ -1,2 +1,0 @@
-statistics_per_day.py
-top_enter_exit_pages.py

@@ -6,7 +6,7 @@ To get started, you first need to download the input file from [here](https://dr
 
     ./run.sh
 
-the code will perform analysis on the input data and write output files into `log_output/` directory. File `process.log` keeps track of the log of this code.
+the code will perform analysis on the server log data and write output files into `log_output/` directory. File `process.log` keeps track of the logout of this code.
 
 # Table of Contents
 1. [Feature Summary](README.md#feature-summary)
@@ -15,8 +15,12 @@ the code will perform analysis on the input data and write output files into `lo
 
 ## Feature Summary
 
-This project is designed for a NASA fan website that generates a large amount of Internet traffic data.  The code allows the user to perform analytics on the server log file, provide useful metrics, and implement security measures. 
+This project is designed for a NASA fan website that generates a large amount of Internet traffic data.  The code allows the users to perform analytics on the server log file, get statistics on the web pages and user activity, and detect potential security breaches. 
 
+### List of Features
+1. [Most Active hosts](README.md#feature-summary)
+2. [Description of Data](README.md#description-of-data)
+3. [Code Structure](README.md#code-structure)
 The features are described below: 
 
 *  **Feature 1: Most Active hosts** 
@@ -199,3 +203,7 @@ e.g., `log.txt`
 
 
 ## Code Structure
+
+The code contains three layers, including the main program, the feature modules, and the utility functions:
+
+![Code Structure Illustration](images/code_structure.png)

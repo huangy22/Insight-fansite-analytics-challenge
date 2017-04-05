@@ -9,7 +9,7 @@ Global Variables:
 Author: Yuan Huang
 """
 import unittest
-import algorithms
+import utility
 
 # Count and size are public variables which can be used when assigning
 # the feature to sort by in the top() function.
@@ -68,7 +68,7 @@ class HostActivity(object):
             idx = self.__size_index
         else:
             raise NotImplementedError
-        keys, values = algorithms.nlargest_dict(number, self.__host, idx)
+        keys, values = utility.nlargest_dict(number, self.__host, idx)
         return zip(values, keys)
 
     def get(self, host, feature):

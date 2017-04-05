@@ -18,3 +18,4 @@ log_output/*test.txt
 
 ;; directories to ignore
 .idea/
+insight_testsuite/temp*/

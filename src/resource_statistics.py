@@ -6,7 +6,7 @@ and get the top n resources that consumes the most bandwidth.
 Author: Yuan Huang
 """
 import unittest
-import algorithms
+import utility
 
 COUNT = 0
 SIZE = 1
@@ -73,7 +73,7 @@ class ResourceStatistics(object):
             idx = self.__size_index
         else:
             raise NotImplementedError
-        keys, values = algorithms.nsmallest_dict(number, self.__resource, idx)
+        keys, values = utility.nsmallest_dict(number, self.__resource, idx)
         return zip(values, keys)
 
     def top(self, number, feature):
@@ -97,7 +97,7 @@ class ResourceStatistics(object):
             idx = self.__size_index
         else:
             raise NotImplementedError
-        keys, values = algorithms.nlargest_dict(number, self.__resource, idx)
+        keys, values = utility.nlargest_dict(number, self.__resource, idx)
         return zip(values, keys)
 
     def get(self, resource, feature):

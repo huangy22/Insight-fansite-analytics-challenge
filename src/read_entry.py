@@ -27,8 +27,11 @@ PATTERN = re.compile(r'\s+'.join(PARTS)+r'\s*\Z')
 MONTH_MAP = {'Jan': 1, 'Feb': 2, 'Mar':3, 'Apr':4, 'May':5, 'Jun':6, 'Jul':7,
              'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
 
-class FixedOffset(dt.tzinfo):
-    """Fixed offset in minutes east from UTC."""
+class FixOffset(dt.tzinfo):
+    """
+    Fixed offset in minutes east from UTC.
+    Inherited from dt.tzinfo.
+    """
 
     def __init__(self, string):
         if string[0] == '-':
@@ -71,7 +74,7 @@ def apachetime(tstr):
     Returns:
         datetime object.
     """
-    tz = FixedOffset(tstr[21:26])
+    tz = FixOffset(tstr[21:26])
     return dt.datetime(int(tstr[7:11]), MONTH_MAP[tstr[3:6]], int(tstr[0:2]),
                        int(tstr[12:14]), int(tstr[15:17]), int(tstr[18:20]), tzinfo=tz)
 
@@ -96,7 +99,7 @@ def format_standardize(entry_dict):
         if request_list[0] in ["GET", "POST", "HEAD"]:
             entry_dict["Request_Type"] = request_list[0]
         else:
-            raise TypeError("Request Type is GET/POST/HEAD in the entry: {0}".format(entry_dict["Request_Type"]))
+            raise TypeError("Request Type is not GET/POST/HEAD in the entry: {0}".format(entry_dict["Request_Type"]))
     else:
         raise TypeError("Request format is not correct in the entry: {0}".format(entry_dict["Request"]))
 

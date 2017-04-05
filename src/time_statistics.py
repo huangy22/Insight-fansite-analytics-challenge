@@ -8,7 +8,7 @@ Author: Yuan Huang
 import unittest
 import datetime as dt
 from collections import deque
-import data_structures
+import utility
 
 class TimeStatistics(object):
     """
@@ -42,11 +42,11 @@ class TimeStatistics(object):
 
         self.__queue = deque()
 
-        self.__top_overlap = data_structures.LinkedList(self.n_top)
+        self.__top_overlap = utility.LinkedList(self.n_top)
 
         self.__last_node = None
         self.__sorted = True
-        self.__top_no_overlap = data_structures.LinkedList(self.n_top)
+        self.__top_no_overlap = utility.LinkedList(self.n_top)
 
         self.__daily = {}
 

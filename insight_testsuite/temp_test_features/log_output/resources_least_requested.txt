@@ -1,3 +1,0 @@
-/shuttle/countdown/,2
-/shuttle/countdown/liftoff.html,2
-/login,6
