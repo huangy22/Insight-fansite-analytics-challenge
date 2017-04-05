@@ -35,7 +35,6 @@ This project is designed for a NASA fan website that generates a large amount of
 
         example.host.com,1000000
         another.example.net,800000
-        31.41.59.26,600000
         …
 
 * **Feature 2: Resources Consuming Most Bandwidth**
@@ -48,7 +47,6 @@ This project is designed for a NASA fan website that generates a large amount of
         
         /images/USA-logosmall.gif
         /shuttle/resources/orbiters/discovery.html
-        /shuttle/countdown/count.html
         …
 
 * **Feature 3: Most Busiest Hours**
@@ -60,9 +58,7 @@ This project is designed for a NASA fan website that generates a large amount of
     e.g., `hours.txt`:
 
         01/Jul/1995:00:00:01 -0400,100
-        01/Jul/1995:00:00:10 -0400,22
-        05/Jul/1995:09:05:02 -0400,10
-        01/Jul/1995:12:30:05 -0400,8
+        01/Jul/1995:00:00:10 -0400,82
         …
 
 * **Feature 4: Block Further Activities After Consecutive Failed Login Attempts**
@@ -96,9 +92,7 @@ This project is designed for a NASA fan website that generates a large amount of
     e.g., `hours_no_overlap.txt`:
      
         01/Jul/1995:00:00:01 -0400,100
-        02/Jul/1995:10:00:07 -0400,22
-        05/Jul/1995:09:05:02 -0400,10
-        01/Jul/1995:12:30:05 -0400,8
+        01/Jul/1995:10:00:07 -0400,72
         …
 
 * **Feature 6: Most Requested Resources**
@@ -110,7 +104,6 @@ This project is designed for a NASA fan website that generates a large amount of
     e.g., `resources_most_requested.txt`:
         
         /images/NASA-logosmall.gif,418
-        /images/KSC-logosmall.gif,375
         /shuttle/countdown/,244
         …
 
@@ -122,7 +115,6 @@ This project is designed for a NASA fan website that generates a large amount of
 
     e.g., `resources_least_requested.txt`:
 
-        /",1
         /:/spacelink.msfc.nasa.gov,1
         /cgi-bin/imagemap/countdown70?283,288,1
         …
@@ -137,7 +129,6 @@ This project is designed for a NASA fan website that generates a large amount of
 
         163.205.1.45 - - [03/Jul/1995:10:49:40 -0400] "GET /cgi-bin/geturlstats.pl HTTP/1.0" 500 0
         163.205.1.45 - - [03/Jul/1995:10:49:41 -0400] "GET /cgi-bin/geturlstats.pl HTTP/1.0" 500 0
-        163.205.1.45 - - [03/Jul/1995:10:49:42 -0400] "GET /cgi-bin/geturlstats.pl HTTP/1.0" 500 0
         …
 
 * **Feature 9: Resources With Not Found Errors**
@@ -149,8 +140,6 @@ This project is designed for a NASA fan website that generates a large amount of
     e.g., `resources_not_found.txt`
 
         /history/apollo/pad-abort-test-1/images/
-        /history/apollo/pad-abort-test-1/news/
-        /history/apollo-13/apollo-13.html
         /pub/winvn/readme.txt
         …
 
@@ -164,7 +153,6 @@ This project is designed for a NASA fan website that generates a large amount of
 
         01/Jul/1995,8281
         02/Jul/1995,7825
-        03/Jul/1995,8723
         …
 
 * **Feature 11: Number of Users per day**
@@ -177,7 +165,6 @@ This project is designed for a NASA fan website that generates a large amount of
 
         01/Jul/1995,4699
         02/Jul/1995,3412
-        03/Jul/1995,2359
         …
 
 ## Description of Data
@@ -196,11 +183,9 @@ The input file, named as `log.txt`, is in ASCII format with one line per request
 
 e.g., `log.txt`
 
-    in24.inetnebr.com - - [01/Aug/1995:00:00:01 -0400] "GET /shuttle/missions/sts-68/news/sts-68-mcc-05.txt HTTP/1.0" 200 1839
-    208.271.69.50 - - [01/Aug/1995:00:00:02 -400] “POST /login HTTP/1.0” 401 1420
-    208.271.69.50 - - [01/Aug/1995:00:00:04 -400] “POST /login HTTP/1.0” 200 1420
-    uplherc.upl.com - - [01/Aug/1995:00:00:07 -0400] "GET / HTTP/1.0" 304 0
     uplherc.upl.com - - [01/Aug/1995:00:00:08 -0400] "GET /images/ksclogo-medium.gif HTTP/1.0" 304 0
+    208.271.69.50 - - [01/Aug/1995:00:00:02 -400] “POST /login HTTP/1.0” 401 1420
+    uplherc.upl.com - - [01/Aug/1995:00:00:07 -0400] "GET / HTTP/1.0" 304 0
     ...
 
 
@@ -211,15 +196,9 @@ The code contains three layers, including the main program, the feature modules,
 <img src="images/code_structure.png" alt="Code Structure Illustration" width="400">
 
 In this code, each level of codes only depend on the lower levels. The code is designed to minimize the coupling between same level codes if possible. The utility codes provide basic data structure, algorithms, data cleaning, processing and profile functionalities. The feature modules are built on top of the utility layer and provide classes to record different statistics and perform blocking and other operations. 
-<<<<<<< HEAD
 
 *API Information*: The API information users need to use the feature classes are provided in the docstrings of the source codes. 
 
-=======
-
-*API Information*: The API information users need to use the feature classes are provided in the docstrings of the source codes. 
-
->>>>>>> 4c68ca6abd7c1a7937e783d7b7974aa627cd2439
 *Unit Test*: The utility modules and feature modules all include unit tests. The design of unit tests tries to make the tests for each individual module independent with other modules. 
 
 *Error Handling*: When error happens in the utility and feature levels, the function will raise an error depending the error type. The error will be caught by the main code (process_log.py). In the main code, users can decide how to deal with different types of error, for example, if one line in the log file doesn't fit the correct format, the main code will print out a warning and continue with the next line; if there is an error in opening the input or output file, the code will be aborted with an error message printed out. All the printed out messages are recorded in the log file `process.log` in the main directory.
