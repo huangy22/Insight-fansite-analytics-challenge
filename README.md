@@ -202,7 +202,7 @@ e.g., `log.txt`
 
 The code contains three layers, including the main program, the feature modules, and the utility functions:
 
-![Code Structure Illustration](images/code_structure.png)
+<img src="images/code_structure.png" alt="Code Structure Illustration" width="400">
 
 The utility codes provide basic data structure, algorithms, data cleaning, processing and profile functionalities. The feature modules are built on top of the utility layer and provide classes to record different statistics and perform blocking and other operations. 
 
