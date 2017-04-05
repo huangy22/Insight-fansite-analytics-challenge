@@ -1,6 +1,6 @@
 
 # Getting Started
-Insight-fansite-analytics is running on Python 2.7 without any additional libraries. This project is designed for a NASA fan website that generates a large amount of Internet traffic data.  This code allows the users to dive into the log file and perform a large variety of statistical and security analysis. 
+The code of Insight-fansite-analytics is running on Python 2.7 without any additional libraries. This project is designed for a NASA fan website that generates a large amount of Internet traffic data.  This code allows the users to dive into the log file and perform a large variety of statistical and security analysis. 
 
 To get started, you first need to download the input file from [here](https://drive.google.com/file/d/0B7-XWjN4ezogbUh6bUl1cV82Tnc/view) and put it in the `log_input/` directory. By running the command:
 
@@ -18,10 +18,6 @@ the code will perform analysis on the server log data and write output files int
 This project is designed for a NASA fan website that generates a large amount of Internet traffic data.  The code allows the users to perform analytics on the server log file, get statistics on the web pages and user activity, and detect potential security breaches. 
 
 ### List of Features
-1. [Most Active hosts](README.md#feature-summary)
-2. [Description of Data](README.md#description-of-data)
-3. [Code Structure](README.md#code-structure)
-The features are described below: 
 
 *  **Feature 1: Most Active hosts** 
 
@@ -207,3 +203,11 @@ e.g., `log.txt`
 The code contains three layers, including the main program, the feature modules, and the utility functions:
 
 ![Code Structure Illustration](images/code_structure.png)
+
+The utility codes provide basic data structure, algorithms, data cleaning, processing and profile functionalities. The feature modules are built on top of the utility layer and provide classes to record different statistics and perform blocking and other operations. 
+
+*Unit Test*: The utility modules and feature modules all include unit tests. The design of unit tests makes sure the tests for each individual module is independent with other modules. 
+
+*Error Handling*: When error happens in the utility and feature levels, the function will raise an error depending the error type. The error will be caught by the main code (process_log.py). In the main code, users can decide how to deal with different types of error, for example, if one line in the log file doesn't fit the correct format, the main code will print out a warning and continue with the next line; if there is an error in opening the input or output file, the code will be aborted with an error message printed out. All the printed out messages are recorded in the log file `process.log` in the main directory.
+
+##
