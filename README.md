@@ -4,6 +4,17 @@
 3. [Code Dependencies and Structure](README.md#code-dependencies-and-structure)
 4. [Repo directory structure](README.md#repo-directory-structure)
 
+
+## Get Started
+Insight-fansite-analytics is running on Python 2.7 without any additional libraries. This project is designed for a NASA fan website that generates a large amount of Internet traffic data.  This code allows the users to dive into the log file and perform a large variety of statistical and security analysis. 
+
+To get started, you first need to download the input file from [here](https://drive.google.com/file/d/0B7-XWjN4ezogbUh6bUl1cV82Tnc/view) and put it in the `log_input/` directory. By running the command:
+
+    ./run.sh
+
+the code will perform analysis on the input data and write output files into `log_output/` directory. File `process.log` keeps track of the log of this code.
+
+
 ## Feature Summary
 
 This project is designed for a NASA fan website that generates a large amount of Internet traffic data.  The code allows the user to perform analytics on the server log file, provide useful metrics, and implement security measures. 
@@ -167,8 +178,6 @@ The features are described below:
 
 ## Description of Data
 
-The data can be downloaded here: https://drive.google.com/file/d/0B7-XWjN4ezogbUh6bUl1cV82Tnc/view
-
 The input file, named as `log.txt`, is in ASCII format with one line per request, containing the following columns:
 
 * **host** making the request. A hostname when possible, otherwise the Internet address if the name could not be looked up.
@@ -190,6 +199,5 @@ e.g., `log.txt`
     uplherc.upl.com - - [01/Aug/1995:00:00:08 -0400] "GET /images/ksclogo-medium.gif HTTP/1.0" 304 0
     ...
 
-## Code Dependencies and Structure
 
-If your solution requires additional libraries, environments, or dependencies, you must specify these in your `README` documentation. See the figure below for the required structure of the top-most directory in your repo, or simply clone this repo.
+## Code Structure
