@@ -35,6 +35,7 @@ class HostActivity(object):
         self.__size_index = 1
 
         self.__host = {}
+        self.__daily = {}
 
     def update(self, entry):
         """Add the info of entry into the statistics of each host.

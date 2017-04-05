@@ -1,111 +1,129 @@
 # Table of Contents
-1. [Challenge Summary](README.md#challenge-summary)
-2. [Details of Implementation](README.md#details-of-implementation)
-3. [Description of Data](README.md#description-of-data)
-4. [Code Dependencies and Structure](README.md#code-dependencies-and-structure)
-5. [Repo directory structure](README.md#repo-directory-structure)
+1. [Feature Summary](README.md#feature-summary)
+2. [Description of Data](README.md#description-of-data)
+3. [Code Dependencies and Structure](README.md#code-dependencies-and-structure)
+4. [Repo directory structure](README.md#repo-directory-structure)
 
+## Feature Summary
 
-## Challenge Summary
-
-This project is designed for a NASA fan website that generates a large amount of Internet traffic data.  The code allows the user to perform basic analytics on the server log file, provide useful metrics, and implement basic security measures. 
+This project is designed for a NASA fan website that generates a large amount of Internet traffic data.  The code allows the user to perform analytics on the server log file, provide useful metrics, and implement security measures. 
 
 The features are described below: 
 
-### Feature 1: 
-List the top 10 most active host/IP addresses that have accessed the site.
+* Feature 1: Most Active hosts 
+    List in descending order the top 10 most active hosts/IP addresses that have accessed the site.
 
-### Feature 2: 
-Identify the 10 resources that consume the most bandwidth on the site.
+    **Output**: The 10 most active hosts/IP addresses in descending order and how many times they have accessed are written in a file named `hosts.txt`. 
 
-### Feature 3:
-List the top 10 busiest (or most frequently visited) 60-minute periods. 
+    e.g., `hosts.txt`:
 
-### Feature 4: 
-Detect patterns of three failed login attempts from the same IP address over 20 seconds so that all further attempts to the site can be blocked for 5 minutes. Log those possible security breaches.
+        example.host.com,1000000
+        another.example.net,800000
+        31.41.59.26,600000
+        …
 
-### Feature 5:
-In Feature 3, the provided 60-minute periods  are allowed to overlap with each other, which results in the top 10 periods being very similar and having big overlaps. In this feature, the selected top 10 busiest periods are not allowed to overlap, which turns out to be more informative than feature 3.
+* Feature 2: Resources Consuming Most Bandwidth
+    Identify and list the 10 resources that consume the most bandwidth on the site.
 
-### Feature 6:
-//In Feature 3, the provided 60-minute periods  are allowed to overlap with each other, which results in the top 10 periods being very similar and having big overlaps. In this feature, the selected top 10 busiest periods are not allowed to overlap, which turns out to be more informative than feature 3.
+    **Output**: These most bandwidth-intensive resources, sorted in descending order and separated by a new line, are written to a file called `resources.txt`. 
 
-### Proposal for potential features:
-This dataset is inspired by real NASA web traffic, which is very similar to server logs from e-commerce and other sites. Monitoring web traffic and providing these analytics is a real business need, but it’s not the only thing you can do with the data. Feel free to implement additional features that you think might be useful.
+    e.g., `resources.txt`:
+        
+        /images/USA-logosmall.gif
+        /shuttle/resources/orbiters/discovery.html
+        /shuttle/countdown/count.html
+        …
 
-## Details of Implementation
+* Feature 3: Most Busiest Hours
+    List in descending order the site’s 10 busiest (i.e. most frequently visited) 60-minute periods. The 60-minute periods are allowed to overlap.
 
-### Feature 1 
-List in descending order the top 10 most active hosts/IP addresses that have accessed the site.
+    **Output**: The start time of each 60-minute window followed by the number of times the site was accessed during that time period are written to a file named `hours.txt`.  The 10 lines are listed in descending order with the busiest 60-minute window shown first. 
 
-**Output**: The 10 most active hosts/IP addresses in descending order and how many times they have accessed are written in a file named `hosts.txt`. There are at most 10 lines in the file, and each line includes the host (or IP address) followed by a comma and then the number of times it accessed the site. 
+    e.g., `hours.txt`:
 
-e.g., `hosts.txt`:
+        01/Jul/1995:00:00:01 -0400,100
+        01/Jul/1995:00:00:10 -0400,22
+        05/Jul/1995:09:05:02 -0400,10
+        01/Jul/1995:12:30:05 -0400,8
+        …
 
-    example.host.com,1000000
-    another.example.net,800000
-    31.41.59.26,600000
-    …
+* Feature 4: Block Further Activities After Consecutive Failed Login Attempts
+    Detect patterns of three consecutive failed login attempts over 20 seconds in order to block all further attempts to reach the site from the same IP address for the next 5 minutes. Each attempt that would have been blocked is written to a log file named `blocked.txt`.
 
-### Feature 2 
-Identify the top 10 resources on the site that consume the most bandwidth. Bandwidth consumption is estimated from bytes sent over the network and the frequency by which they were accessed.
+    **Output**:
+    e.g., `blocked.txt`
 
-**Output**: These most bandwidth-intensive resources, sorted in descending order and separated by a new line, are written to a file called `resources.txt`. The file contains at most 10 lines with each line containing the resource.
+        uplherc.upl.com - - [01/Aug/1995:00:00:07 -0400] "GET / HTTP/1.0" 304 0
+        uplherc.upl.com - - [01/Aug/1995:00:00:08 -0400] "GET /images/ksclogo-medium.gif HTTP/1.0" 304 0
+        …
 
-e.g., `resources.txt`:
-    
-    /images/USA-logosmall.gif
-    /shuttle/resources/orbiters/discovery.html
-    /shuttle/countdown/count.html
-    …
+    **Details of the feature**: If an IP address has not reached three failed login attempts during the 20 second window, a login attempt that succeeds during that time period will resets the failed login counter and 20-second clock. The next failed login attempt will be counted as 1, and the 20-second timer would begin there. In other words, this feature should only be triggered if an IP has  3 failed logins in a row, within a 20-second window.
 
+    The following illustration shows how this feature works, and when three failed login attempts would trigger 5 minutes of blocking:
 
-### Feature 3 
-List in descending order the site’s 10 busiest (i.e. most frequently visited) 60-minute period. The 60-minute periods are allowed to overlap.
+    ![Feature 4 illustration](images/feature4.png)
 
-**Output**: The start time of each 60-minute window followed by the number of times the site was accessed during that time period are written to a file named `hours.txt`.  The file contains at most 10 lines with each line containing the start of each 60-minute window, followed by a comma and then the number of times the site was accessed during those 60 minutes. The 10 lines are listed in descending order with the busiest 60-minute window shown first. 
+    Note that this feature is independent with the other features in this code. For instance, any requests that end up in the `blocked.txt` file will still be counted toward the most active IP host calculation, bandwidth consumption and busiest 60-minute period.
 
-e.g., `hours.txt`:
+* Feature 5: Most Busiest Hours (Without Overlapping)
+    In Feature 3, the provided 60-minute periods  are allowed to overlap with each other, which results in the top 10 periods being very similar and having big overlaps. In this feature, the selected top 10 busiest periods are not allowed to overlap, which turns out to be more informative than feature 3.
 
-    01/Jul/1995:00:00:01 -0400,100
-    01/Jul/1995:00:00:10 -0400,22
-    05/Jul/1995:09:05:02 -0400,10
-    01/Jul/1995:12:30:05 -0400,8
-    …
+    List in descending order the site’s 10 busiest (i.e. most frequently visited) 60-minute period while enforcing the requirement that the time windows don't overlap. The provided results are the 10 best possible periods without overlapping.
 
-### Feature 4 
-Detect patterns of three consecutive failed login attempts over 20 seconds in order to block all further attempts to reach the site from the same IP address for the next 5 minutes. Each attempt that would have been blocked is written to a log file named `blocked.txt`.
+    **Output**: The start time of each 60-minute window followed by the number of times the site was accessed during that time period are written to a file named `hours_no_overlap.txt`. The file contains at most 10 lines with each line containing the start of each 60-minute window, followed by a comma and then the number of times the site was accessed during those 60 minutes. The 10 lines are listed in descending order with the busiest 60-minute window shown first. 
 
-**Output**:
-e.g., `blocked.txt`
+    e.g., `hours_no_overlap.txt`:
+     
+        01/Jul/1995:00:00:01 -0400,100
+        02/Jul/1995:10:00:07 -0400,22
+        05/Jul/1995:09:05:02 -0400,10
+        01/Jul/1995:12:30:05 -0400,8
+        …
 
-    uplherc.upl.com - - [01/Aug/1995:00:00:07 -0400] "GET / HTTP/1.0" 304 0
-    uplherc.upl.com - - [01/Aug/1995:00:00:08 -0400] "GET /images/ksclogo-medium.gif HTTP/1.0" 304 0
-    …
+* Feature 6: Most Requested Resources
+    Identify and list the 10 resources that attract the most requests by users on the site.
 
-**Details of the feature**: If an IP address has not reached three failed login attempts during the 20 second window, a login attempt that succeeds during that time period will resets the failed login counter and 20-second clock. The next failed login attempt will be counted as 1, and the 20-second timer would begin there. In other words, this feature should only be triggered if an IP has  3 failed logins in a row, within a 20-second window.
+    **Output**: These resources with most requests followed by the number of times the resource was requested, sorted in descending order and separated by a new line, are written to a file called `resources_most_requested.txt`. 
 
-The following illustration shows how this feature works, and when three failed login attempts would trigger 5 minutes of blocking:
+    e.g., `resources_most_requested.txt`:
+        
+        /images/NASA-logosmall.gif,418
+        /images/KSC-logosmall.gif,375
+        /shuttle/countdown/,244
+        …
 
-![Feature 4 illustration](images/feature4.png)
+* Feature 7: Least Requested Resources
+    Identify and list the 10 resources that attract the least requests by users on the site.
 
-Note that this feature is independent with the other features in this code. For instance, any requests that end up in the `blocked.txt` file will still be counted toward the most active IP host calculation, bandwidth consumption and busiest 60-minute period.
+    **Output**: These resources with least requests followed by the number of times the resource was requested, sorted in ascending order and separated by a new line, are written to a file called `resources_least_requested.txt`. 
 
-### Feature 5 
-List in descending order the site’s 10 busiest (i.e. most frequently visited) 60-minute period while enforcing the requirement that the time windows don't overlap. The provided results are the 10 best possible periods without overlapping.
+    e.g., `resources_least_requested.txt`:
 
-**Output**: The start time of each 60-minute window followed by the number of times the site was accessed during that time period are written to a file named `hours_no_overlap.txt`. The file contains at most 10 lines with each line containing the start of each 60-minute window, followed by a comma and then the number of times the site was accessed during those 60 minutes. The 10 lines are listed in descending order with the busiest 60-minute window shown first. 
+        /",1
+        /:/spacelink.msfc.nasa.gov,1
+        /cgi-bin/imagemap/countdown70?283,288,1
+        …
 
-e.g., `hours_no_overlap.txt`:
- 
-    01/Jul/1995:00:00:01 -0400,100
-    02/Jul/1995:10:00:07 -0400,22
-    05/Jul/1995:09:05:02 -0400,10
-    01/Jul/1995:12:30:05 -0400,8
-    …
+* Feature 8: Logs With Server Errors
+    Detect all logs with server error (Status code is between 500 and 599) and write them into a log file called `server_error.txt`.
 
-Feel free to implement additional features that might be useful to derive further metrics or prevent harmful activity. These features will be considered as bonus while evaluating your submission. If you choose to add extras please document them in your README and make sure that they don't interfere with the above four (e.g. don't alter the output of the four core features).
+    e.g., `server_error.txt`
 
+        163.205.1.45 - - [03/Jul/1995:10:49:40 -0400] "GET /cgi-bin/geturlstats.pl HTTP/1.0" 500 0
+        163.205.1.45 - - [03/Jul/1995:10:49:41 -0400] "GET /cgi-bin/geturlstats.pl HTTP/1.0" 500 0
+        163.205.1.45 - - [03/Jul/1995:10:49:42 -0400] "GET /cgi-bin/geturlstats.pl HTTP/1.0" 500 0
+        …
+
+* Feature 9: Resources With Not Found Errors
+    Detect all the resources with Not Found error (Status code is 404) and write them into a file called `resources_not_found.txt`.
+
+    e.g., `resources_not_found.txt`
+
+        /history/apollo/pad-abort-test-1/images/
+        /history/apollo/pad-abort-test-1/news/
+        /history/apollo-13/apollo-13.html
+        /pub/winvn/readme.txt
+        …
 
 ## Description of Data
 
@@ -135,56 +153,3 @@ e.g., `log.txt`
 ## Code Dependencies and Structure
 
 If your solution requires additional libraries, environments, or dependencies, you must specify these in your `README` documentation. See the figure below for the required structure of the top-most directory in your repo, or simply clone this repo.
-
-## Repo directory structure
-
-
-    ├── README.md 
-    ├── run.sh
-    ├── run_test.sh
-    ├── src
-    │   └── process_log.py
-    │   └── read_entry.py
-    │   └── host_activity.py
-    │   └── block_hosts.py
-    │   └── resource_statistics.py
-    │   └── time_statistics.py
-    │   └── algorithms.py
-    │   └── data_structures.py
-    │   └── utility.py
-    ├── log_input
-    │   └── log.txt
-    ├── log_output
-    │   └── hosts.txt
-    │   └── hours.txt
-    │   └── hours_no_overlap.txt
-    │   └── resources.txt
-    │   └── blocked.txt
-    ├── insight_testsuite
-            └── run_tests.sh
-            └── tests
-                |── test_features
-                |   ├── log_input
-                |   │   └── log.txt
-                |   ├── log_output
-                |   │   └── hosts.txt
-                |   │   └── hours.txt
-                |   │   └── hours_no_overlap.txt
-                |   │   └── resources.txt
-                |   │   └── blocked.txt
-                |── test_format
-                |   ├── log_input
-                |   │   └── log.txt
-                |   ├── log_output
-                |   │   └── hosts.txt
-                |   │   └── hours.txt
-                |   │   └── resources.txt
-                |   │   └── blocked.txt
-                |── test_one_hour
-                |   ├── log_input
-                |   │   └── log.txt
-                |   ├── log_output
-                |   │   └── hosts.txt
-                |   │   └── hours.txt
-                |   │   └── resources.txt
-                |   │   └── blocked.txt

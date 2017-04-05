@@ -52,6 +52,30 @@ class ResourceStatistics(object):
                 self.__resource[res][self.__size_index] = float(entry["Size"])
                 self.__resource[res][self.__bandwidth_index] = entry["Size"]
 
+    def bottom(self, number, feature):
+        """
+        Get the top resources list with a specified number and sorted by specified feature.
+        Args:
+            number(int): the number of top resources.
+            feature: can only take values COUNT, SIZE or BANDWIDTH.
+        Returns:
+            A list of tuples. In each tuple, the first element is the count/size/bandwidth, the
+            second item is the name of the resource.
+        Raises:
+            NotImplementedError: Error occurs when choosen feature is not COUNT,
+            SIZE, or BANDWIDTH.
+        """
+        if feature == COUNT:
+            idx = self.__count_index
+        elif feature == BANDWIDTH:
+            idx = self.__bandwidth_index
+        elif feature == SIZE:
+            idx = self.__size_index
+        else:
+            raise NotImplementedError
+        keys, values = algorithms.nsmallest_dict(number, self.__resource, idx)
+        return zip(values, keys)
+
     def top(self, number, feature):
         """
         Get the top resources list with a specified number and sorted by specified feature.
@@ -74,7 +98,6 @@ class ResourceStatistics(object):
         else:
             raise NotImplementedError
         keys, values = algorithms.nlargest_dict(number, self.__resource, idx)
-
         return zip(values, keys)
 
     def get(self, resource, feature):
@@ -113,28 +136,43 @@ class TestResource(unittest.TestCase):
                      {"Request": "F", "Size": 2},
                     ]
 
+    def test_find_small_resources(self):
+        resources = ResourceStatistics()
+        for entry in self.data:
+            resources.update(entry)
+        bottom = resources.bottom(2, COUNT)
+        self.assertEqual(bottom[0], (1, "D"))
+        self.assertEqual(bottom[1], (1, "E"))
+
+        bottom = resources.bottom(2, BANDWIDTH)
+        self.assertEqual(bottom[0], (2, "D"))
+        self.assertEqual(bottom[1], (2, "F"))
+
+        bottom = resources.bottom(2, SIZE)
+        self.assertEqual(bottom[0], (5.0/3, "A"))
+        self.assertEqual(bottom[1], (2.0, "C"))
 
     def test_update_resource(self):
         resources = ResourceStatistics()
         for entry in self.data:
             resources.update(entry)
-        self.assertEqual(resources.get("A", resources.count), 3)
-        self.assertEqual(resources.get("A", resources.size), 5.0/3)
-        self.assertEqual(resources.get("A", resources.bandwidth), 5)
+        self.assertEqual(resources.get("A", COUNT), 3)
+        self.assertEqual(resources.get("A", SIZE), 5.0/3)
+        self.assertEqual(resources.get("A", BANDWIDTH), 5)
 
     def test_find_large_resources(self):
         resources = ResourceStatistics()
         for entry in self.data:
             resources.update(entry)
-        top = resources.top(2, resources.count)
+        top = resources.top(2, COUNT)
         self.assertEqual(top[0], (3, "A"))
         self.assertEqual(top[1], (2, "C"))
 
-        top = resources.top(2, resources.bandwidth)
+        top = resources.top(2, BANDWIDTH)
         self.assertEqual(top[0], (33, "E"))
         self.assertEqual(top[1], (23, "B"))
 
-        top = resources.top(2, resources.size)
+        top = resources.top(2, SIZE)
         self.assertEqual(top[0], (33, "E"))
         self.assertEqual(top[1], (11.5, "B"))
 

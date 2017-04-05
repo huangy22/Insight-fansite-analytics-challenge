@@ -1,0 +1,15 @@
+/history/apollo/pad-abort-test-1/images/
+/history/apollo/pad-abort-test-1/news/
+/history/apollo-13/apollo-13.html
+/pub/winvn/readme.txt
+/persons/astronauts/a-to-d/beanAL.txt
+/pub/winvn/release.txt
+/history/apollo/pad-abort-test-1/pad-abort-test-1-patch-small.gif
+/shuttle/missions/sts-71/images/KSC-95EC-0916.txt
+/history/apollo/pad-abort-test-1/docs/
+/:/spacelink.msfc.nasa.gov
+/history/apollo/pad-abort-test-1/movies/
+/news/sci.space.shuttle/archive/sci-space-shuttle-22-apr-1995-40.txt
+/shuttle/missions/technology/sts-newsref/stsref-toc.html
+/persons/astronauts/i-to-l/lousmaJR.txt
+/history/apollo/pad-abort-test-1/sounds/

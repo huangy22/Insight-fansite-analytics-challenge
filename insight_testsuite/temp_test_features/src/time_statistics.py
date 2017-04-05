@@ -48,6 +48,7 @@ class TimeStatistics(object):
         self.__sorted = True
         self.__top_no_overlap = data_structures.LinkedList(self.n_top)
 
+        self.__daily = {}
 
     def __update_queue(self, entry):
         """
@@ -135,6 +136,17 @@ class TimeStatistics(object):
                     # full or the number of logs is larger than the smallest in the top list
                     self.__last_node = self.__top_no_overlap.sorted_insert_data(new_data)
 
+    def __update_daily_statistics(self, entry):
+        """
+        Given a new entry, add it to the daily statistics
+        """
+        today = entry["Time"].date()
+        if today in self.__daily:
+            self.__daily[today]["hits"] += 1
+            self.__daily[today]["users"].add(entry["Host"])
+        else:
+            self.__daily[today] = {"hits": 0, "users": set()}
+
     def update(self, entry):
         """
         Given a new entry, update the current time window's queue and update the __top_overlap
@@ -142,6 +154,7 @@ class TimeStatistics(object):
         Args:
             entry(dict): the new log dictionary.
         """
+        self.__update_daily_statistics(entry)
         window_list  = self.__update_queue(entry)
         for (number, time) in window_list:
             self.__update_top(number, time)
@@ -178,6 +191,32 @@ class TimeStatistics(object):
         result = self.__top_no_overlap.get_list(order="descend")
         for data in result:
             data[1] = data[1].strftime("%d/%b/%Y:%H:%M:%S %z")
+        return result
+
+    def get_daily_users(self):
+        """
+        Return the statistics for the number of users on each day
+        Returns:
+            result(list): A list of length-2 lists. Each length-2 lists contains list[0]
+            as the number of users on each day and list[1] as the string of the date.
+        """
+        result = []
+        for day in self.__daily:
+            str_day = day.strftime('%d/%b/%Y')
+            result.append([len(self.__daily[day]["users"]), str_day])
+        return result
+
+    def get_daily_hits(self):
+        """
+        Return the statistics for the number of hits on each day
+        Returns:
+            result(list): A list of length-2 lists. Each length-2 lists contains list[0]
+            as the number of hits on each day and list[1] as the string of the date.
+        """
+        result = []
+        for day in self.__daily:
+            str_day = day.strftime('%d/%b/%Y')
+            result.append([self.__daily[day]["hits"], str_day])
         return result
 
 class TestTime(unittest.TestCase):
@@ -227,6 +266,12 @@ class TestTime(unittest.TestCase):
         self.assertEquals(result2[0], [5, '01/Jul/1995:08:00:11 '])
         self.assertEquals(result2[1], [3, '01/Jul/1995:01:00:03 '])
         self.assertEquals(result2[2], [2, '01/Jul/1995:02:00:06 '])
+
+        hits = hours.get_daily_hits()
+        self.assertEquals(hits[0], [11, "01/Jul/1995"])
+
+        users = hours.get_daily_users()
+        self.assertEquals(users[0], [2, "01/Jul/1995"])
 
 if __name__ == '__main__':
     unittest.main()

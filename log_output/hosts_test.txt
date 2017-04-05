@@ -5,6 +5,6 @@ kristina.az.com,45
 www-a1.proxy.aol.com,42
 news.ti.com,41
 piweba1y.prodigy.com,40
-brandt.xensei.com,36
 svasu.extern.ucsd.edu,36
+brandt.xensei.com,36
 slip-5.io.com,34

@@ -37,7 +37,7 @@ function check_project_struct {
 
 # setup testing output folder
 function setup_testing_input_output {
-  TEST_OUTPUT_PATH=${GRADER_ROOT}/temp
+  TEST_OUTPUT_PATH=${GRADER_ROOT}/temp_${test_folder}
   if [ -d ${TEST_OUTPUT_PATH} ]; then
     rm -rf ${TEST_OUTPUT_PATH}
   fi
@@ -55,10 +55,10 @@ function setup_testing_input_output {
 }
 
 function compare_outputs {
-  PROJECT_ANSWER_PATH1=${GRADER_ROOT}/temp/log_output/hosts.txt
-  PROJECT_ANSWER_PATH2=${GRADER_ROOT}/temp/log_output/resources.txt
-  PROJECT_ANSWER_PATH3=${GRADER_ROOT}/temp/log_output/hours.txt
-  PROJECT_ANSWER_PATH4=${GRADER_ROOT}/temp/log_output/blocked.txt
+  PROJECT_ANSWER_PATH1=${GRADER_ROOT}/temp_${test_folder}/log_output/hosts.txt
+  PROJECT_ANSWER_PATH2=${GRADER_ROOT}/temp_${test_folder}/log_output/resources.txt
+  PROJECT_ANSWER_PATH3=${GRADER_ROOT}/temp_${test_folder}/log_output/hours.txt
+  PROJECT_ANSWER_PATH4=${GRADER_ROOT}/temp_${test_folder}/log_output/blocked.txt
   TEST_ANSWER_PATH1=${GRADER_ROOT}/tests/${test_folder}/log_output/hosts.txt
   TEST_ANSWER_PATH2=${GRADER_ROOT}/tests/${test_folder}/log_output/resources.txt
   TEST_ANSWER_PATH3=${GRADER_ROOT}/tests/${test_folder}/log_output/hours.txt
@@ -111,7 +111,7 @@ function run_all_tests {
 
     setup_testing_input_output
 
-    cd ${GRADER_ROOT}/temp
+    cd ${GRADER_ROOT}/temp_${test_folder}
     bash run.sh 2>&1
     cd ../
 
