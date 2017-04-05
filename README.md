@@ -1,11 +1,5 @@
-# Table of Contents
-1. [Feature Summary](README.md#feature-summary)
-2. [Description of Data](README.md#description-of-data)
-3. [Code Dependencies and Structure](README.md#code-dependencies-and-structure)
-4. [Repo directory structure](README.md#repo-directory-structure)
 
-
-## Get Started
+# Getting Started
 Insight-fansite-analytics is running on Python 2.7 without any additional libraries. This project is designed for a NASA fan website that generates a large amount of Internet traffic data.  This code allows the users to dive into the log file and perform a large variety of statistical and security analysis. 
 
 To get started, you first need to download the input file from [here](https://drive.google.com/file/d/0B7-XWjN4ezogbUh6bUl1cV82Tnc/view) and put it in the `log_input/` directory. By running the command:
@@ -14,6 +8,10 @@ To get started, you first need to download the input file from [here](https://dr
 
 the code will perform analysis on the input data and write output files into `log_output/` directory. File `process.log` keeps track of the log of this code.
 
+# Table of Contents
+1. [Feature Summary](README.md#feature-summary)
+2. [Description of Data](README.md#description-of-data)
+3. [Code Structure](README.md#code-structure)
 
 ## Feature Summary
 
