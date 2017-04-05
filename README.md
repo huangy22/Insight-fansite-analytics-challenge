@@ -8,10 +8,16 @@ To get started, you first need to download the input file from [here](https://dr
 
 the code will perform analysis on the server log data and write output files into `log_output/` directory. File `process.log` keeps track of the logout of this code.
 
+The bash script can take one optional argument:
+
+    `--profile` or `-p`: run the code with cprofile to analyze the running time profile
+    `--test` or `-t`: run the code with the test input file `log_input/log_test.txt` and write the output files in `log_output/test/`
+
 # Table of Contents
 1. [Feature Summary](README.md#feature-summary)
 2. [Description of Data](README.md#description-of-data)
 3. [Code Structure](README.md#code-structure)
+4. [Future Improvement](README.md#future-improvement)
 
 ## Feature Summary
 
@@ -204,10 +210,14 @@ The code contains three layers, including the main program, the feature modules,
 
 <img src="images/code_structure.png" alt="Code Structure Illustration" width="400">
 
-The utility codes provide basic data structure, algorithms, data cleaning, processing and profile functionalities. The feature modules are built on top of the utility layer and provide classes to record different statistics and perform blocking and other operations. 
+In this code, each level of codes only depend on the lower levels. The code is designed to minimize the coupling between same level codes if possible. The utility codes provide basic data structure, algorithms, data cleaning, processing and profile functionalities. The feature modules are built on top of the utility layer and provide classes to record different statistics and perform blocking and other operations. 
 
-*Unit Test*: The utility modules and feature modules all include unit tests. The design of unit tests makes sure the tests for each individual module is independent with other modules. 
+*API Information*: The API information users need to use the feature classes are provided in the docstrings of the source codes. 
+
+*Unit Test*: The utility modules and feature modules all include unit tests. The design of unit tests tries to make the tests for each individual module independent with other modules. 
 
 *Error Handling*: When error happens in the utility and feature levels, the function will raise an error depending the error type. The error will be caught by the main code (process_log.py). In the main code, users can decide how to deal with different types of error, for example, if one line in the log file doesn't fit the correct format, the main code will print out a warning and continue with the next line; if there is an error in opening the input or output file, the code will be aborted with an error message printed out. All the printed out messages are recorded in the log file `process.log` in the main directory.
 
-##
+## Future Improvement
+
+time profile

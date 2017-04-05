@@ -4,6 +4,9 @@
 Analyze the server log file, get statistics about
 hosts, time distribution, resource bandwidth consumption, and block
 the user after three failed consecutive login attempts in 20 seconds.
+Args:
+    input_file(string): The name of the input file
+    output_dir(string): The directory where you want to put the output files
 Author: Yuan Huang
 """
 import sys
@@ -14,30 +17,6 @@ import resource_statistics as resource
 import block_hosts
 import time_statistics
 import utility
-
-def output_logs(entries, filename, msg):
-    # Write the selected logs into log file
-    try:
-        log.info(msg)
-        with open(filename, "w") as writer:
-            for entry in entries:
-                writer.write(entry)
-    except:
-        log.info("Fail to output to log file. \n{0}".format(traceback.format_exc()))
-
-def output_statistics(records, filename, msg, with_count=True):
-    # Write the statistics data to output
-    try:
-        log.info(msg)
-        with open(filename, "w") as writer:
-            if with_count:
-                for record in records:
-                    writer.write(record[1]+","+str(record[0])+"\n")
-            else:
-                for record in records:
-                    writer.write(record[1]+"\n")
-    except:
-        log.info("Fail to output to file. \n{0}".format(traceback.format_exc()))
 
 infile = sys.argv[1]
 outdir = sys.argv[2]
@@ -174,14 +153,18 @@ output_logs(resources_not_found, outfiles["resources_not_found"],
             .format(outfiles["resources_not_found"]))
 
 # Feature 10
+# Write the date and the number of hits on that day to output
 daily_hits = time.get_daily_hits()
 output_statistics(daily_hits, outfiles["daily_hits"],
                   "Output the number of logs on each day to file {0}".format(outfiles["daily_hits"]))
 
 # Feature 11
+# Write the date and the number of users on that day to output
 daily_users = time.get_daily_users()
 output_statistics(daily_users, outfiles["daily_users"],
                   "Output the number of users on each day to file {0}".format(outfiles["daily_users"]))
+
+# Feature 12
 
 
 log.info("Memory Usage : {0} MB".format(utility.memory_usage()))
