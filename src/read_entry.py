@@ -65,7 +65,7 @@ class FixOffset(dt.tzinfo):
     def __repr__(self):
         return repr(self.__name)
 
-def apachetime(tstr):
+def __apachetime(tstr):
     """
     Transform the time string in Apache time format (without timezone information)
     into datetime object.
@@ -78,7 +78,7 @@ def apachetime(tstr):
     return dt.datetime(int(tstr[7:11]), MONTH_MAP[tstr[3:6]], int(tstr[0:2]),
                        int(tstr[12:14]), int(tstr[15:17]), int(tstr[18:20]), tzinfo=tz)
 
-def format_standardize(entry_dict):
+def __format_standardize(entry_dict):
     """
     Change the format and datatype of the Apache log dictionary.
     Args:
@@ -120,7 +120,7 @@ def format_standardize(entry_dict):
         entry_dict["Status"] = int(entry_dict["Status"])
 
     # Convert the timestamp into a datetime object. Accept the server's time zone.
-    entry_dict["Time"] = apachetime(entry_dict["Time"])
+    entry_dict["Time"] = __apachetime(entry_dict["Time"])
     return entry_dict
 
 def read_entry(line):
@@ -144,7 +144,7 @@ def read_entry(line):
     hit = matches.groupdict()
 
     # Change the format of the dictionary
-    dictionary = format_standardize(hit)
+    dictionary = __format_standardize(hit)
     return dictionary
 
 class TestReadEntry(unittest.TestCase):
