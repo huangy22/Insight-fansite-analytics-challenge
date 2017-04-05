@@ -10,10 +10,10 @@ This project is designed for a NASA fan website that generates a large amount of
 
 The features are described below: 
 
-* Feature 1: Most Active hosts 
+*  **Feature 1: Most Active hosts** 
     List in descending order the top 10 most active hosts/IP addresses that have accessed the site.
 
-    **Output**: The 10 most active hosts/IP addresses in descending order and how many times they have accessed are written in a file named `hosts.txt`. 
+    *Output*: The 10 most active hosts/IP addresses in descending order and how many times they have accessed are written in a file named `hosts.txt`. 
 
     e.g., `hosts.txt`:
 
@@ -22,10 +22,10 @@ The features are described below:
         31.41.59.26,600000
         …
 
-* Feature 2: Resources Consuming Most Bandwidth
+* **Feature 2: Resources Consuming Most Bandwidth**
     Identify and list the 10 resources that consume the most bandwidth on the site.
 
-    **Output**: These most bandwidth-intensive resources, sorted in descending order and separated by a new line, are written to a file called `resources.txt`. 
+    *Output*: These most bandwidth-intensive resources, sorted in descending order and separated by a new line, are written to a file called `resources.txt`. 
 
     e.g., `resources.txt`:
         
@@ -34,10 +34,10 @@ The features are described below:
         /shuttle/countdown/count.html
         …
 
-* Feature 3: Most Busiest Hours
+* **Feature 3: Most Busiest Hours**
     List in descending order the site’s 10 busiest (i.e. most frequently visited) 60-minute periods. The 60-minute periods are allowed to overlap.
 
-    **Output**: The start time of each 60-minute window followed by the number of times the site was accessed during that time period are written to a file named `hours.txt`.  The 10 lines are listed in descending order with the busiest 60-minute window shown first. 
+    *Output*: The start time of each 60-minute window followed by the number of times the site was accessed during that time period are written to a file named `hours.txt`.  The 10 lines are listed in descending order with the busiest 60-minute window shown first. 
 
     e.g., `hours.txt`:
 
@@ -47,17 +47,17 @@ The features are described below:
         01/Jul/1995:12:30:05 -0400,8
         …
 
-* Feature 4: Block Further Activities After Consecutive Failed Login Attempts
+* **Feature 4: Block Further Activities After Consecutive Failed Login Attempts**
     Detect patterns of three consecutive failed login attempts over 20 seconds in order to block all further attempts to reach the site from the same IP address for the next 5 minutes. Each attempt that would have been blocked is written to a log file named `blocked.txt`.
 
-    **Output**:
+    *Output*:
     e.g., `blocked.txt`
 
         uplherc.upl.com - - [01/Aug/1995:00:00:07 -0400] "GET / HTTP/1.0" 304 0
         uplherc.upl.com - - [01/Aug/1995:00:00:08 -0400] "GET /images/ksclogo-medium.gif HTTP/1.0" 304 0
         …
 
-    **Details of the feature**: If an IP address has not reached three failed login attempts during the 20 second window, a login attempt that succeeds during that time period will resets the failed login counter and 20-second clock. The next failed login attempt will be counted as 1, and the 20-second timer would begin there. In other words, this feature should only be triggered if an IP has  3 failed logins in a row, within a 20-second window.
+    *Details of the feature*: If an IP address has not reached three failed login attempts during the 20 second window, a login attempt that succeeds during that time period will resets the failed login counter and 20-second clock. The next failed login attempt will be counted as 1, and the 20-second timer would begin there. In other words, this feature should only be triggered if an IP has  3 failed logins in a row, within a 20-second window.
 
     The following illustration shows how this feature works, and when three failed login attempts would trigger 5 minutes of blocking:
 
@@ -65,12 +65,12 @@ The features are described below:
 
     Note that this feature is independent with the other features in this code. For instance, any requests that end up in the `blocked.txt` file will still be counted toward the most active IP host calculation, bandwidth consumption and busiest 60-minute period.
 
-* Feature 5: Most Busiest Hours (Without Overlapping)
+* **Feature 5: Most Busiest Hours (Without Overlapping)**
     In Feature 3, the provided 60-minute periods  are allowed to overlap with each other, which results in the top 10 periods being very similar and having big overlaps. In this feature, the selected top 10 busiest periods are not allowed to overlap, which turns out to be more informative than feature 3.
 
     List in descending order the site’s 10 busiest (i.e. most frequently visited) 60-minute period while enforcing the requirement that the time windows don't overlap. The provided results are the 10 best possible periods without overlapping.
 
-    **Output**: The start time of each 60-minute window followed by the number of times the site was accessed during that time period are written to a file named `hours_no_overlap.txt`. The file contains at most 10 lines with each line containing the start of each 60-minute window, followed by a comma and then the number of times the site was accessed during those 60 minutes. The 10 lines are listed in descending order with the busiest 60-minute window shown first. 
+    *Output*: The start time of each 60-minute window followed by the number of times the site was accessed during that time period are written to a file named `hours_no_overlap.txt`. The file contains at most 10 lines with each line containing the start of each 60-minute window, followed by a comma and then the number of times the site was accessed during those 60 minutes. The 10 lines are listed in descending order with the busiest 60-minute window shown first. 
 
     e.g., `hours_no_overlap.txt`:
      
@@ -80,10 +80,10 @@ The features are described below:
         01/Jul/1995:12:30:05 -0400,8
         …
 
-* Feature 6: Most Requested Resources
+* **Feature 6: Most Requested Resources**
     Identify and list the 10 resources that attract the most requests by users on the site.
 
-    **Output**: These resources with most requests followed by the number of times the resource was requested, sorted in descending order and separated by a new line, are written to a file called `resources_most_requested.txt`. 
+    *Output*: These resources with most requests followed by the number of times the resource was requested, sorted in descending order and separated by a new line, are written to a file called `resources_most_requested.txt`. 
 
     e.g., `resources_most_requested.txt`:
         
@@ -92,10 +92,10 @@ The features are described below:
         /shuttle/countdown/,244
         …
 
-* Feature 7: Least Requested Resources
+* **Feature 7: Least Requested Resources**
     Identify and list the 10 resources that attract the least requests by users on the site.
 
-    **Output**: These resources with least requests followed by the number of times the resource was requested, sorted in ascending order and separated by a new line, are written to a file called `resources_least_requested.txt`. 
+    *Output*: These resources with least requests followed by the number of times the resource was requested, sorted in ascending order and separated by a new line, are written to a file called `resources_least_requested.txt`. 
 
     e.g., `resources_least_requested.txt`:
 
@@ -104,9 +104,10 @@ The features are described below:
         /cgi-bin/imagemap/countdown70?283,288,1
         …
 
-* Feature 8: Logs With Server Errors
+* **Feature 8: Logs With Server Errors**
     Detect all logs with server error (Status code is between 500 and 599) and write them into a log file called `server_error.txt`.
 
+    *Output*:
     e.g., `server_error.txt`
 
         163.205.1.45 - - [03/Jul/1995:10:49:40 -0400] "GET /cgi-bin/geturlstats.pl HTTP/1.0" 500 0
@@ -114,9 +115,10 @@ The features are described below:
         163.205.1.45 - - [03/Jul/1995:10:49:42 -0400] "GET /cgi-bin/geturlstats.pl HTTP/1.0" 500 0
         …
 
-* Feature 9: Resources With Not Found Errors
+* **Feature 9: Resources With Not Found Errors**
     Detect all the resources with Not Found error (Status code is 404) and write them into a file called `resources_not_found.txt`.
 
+    *Output*:
     e.g., `resources_not_found.txt`
 
         /history/apollo/pad-abort-test-1/images/
