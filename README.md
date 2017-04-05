@@ -211,9 +211,15 @@ The code contains three layers, including the main program, the feature modules,
 <img src="images/code_structure.png" alt="Code Structure Illustration" width="400">
 
 In this code, each level of codes only depend on the lower levels. The code is designed to minimize the coupling between same level codes if possible. The utility codes provide basic data structure, algorithms, data cleaning, processing and profile functionalities. The feature modules are built on top of the utility layer and provide classes to record different statistics and perform blocking and other operations. 
+<<<<<<< HEAD
 
 *API Information*: The API information users need to use the feature classes are provided in the docstrings of the source codes. 
 
+=======
+
+*API Information*: The API information users need to use the feature classes are provided in the docstrings of the source codes. 
+
+>>>>>>> 4c68ca6abd7c1a7937e783d7b7974aa627cd2439
 *Unit Test*: The utility modules and feature modules all include unit tests. The design of unit tests tries to make the tests for each individual module independent with other modules. 
 
 *Error Handling*: When error happens in the utility and feature levels, the function will raise an error depending the error type. The error will be caught by the main code (process_log.py). In the main code, users can decide how to deal with different types of error, for example, if one line in the log file doesn't fit the correct format, the main code will print out a warning and continue with the next line; if there is an error in opening the input or output file, the code will be aborted with an error message printed out. All the printed out messages are recorded in the log file `process.log` in the main directory.
