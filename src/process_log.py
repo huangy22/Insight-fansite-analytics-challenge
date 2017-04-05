@@ -40,24 +40,27 @@ def output_statistics(records, filename, msg, with_count=True):
         log.info("Fail to output to file. \n{0}".format(traceback.format_exc()))
 
 infile = sys.argv[1]
+outdir = sys.argv[2]
+
 outfiles = {}
-outfiles["hosts"] = sys.argv[2]
-outfiles["hours"] = sys.argv[3]
-outfiles["resources"] = sys.argv[4]
-outfiles["blocked"] = sys.argv[5]
-outfiles["hours_no_overlap"] = sys.argv[6]
-outfiles["resources_most_requested"] = sys.argv[7]
-outfiles["resources_least_requested"] = sys.argv[8]
-outfiles["server_err"] = sys.argv[9]
-outfiles["resources_not_found"] = sys.argv[10]
-outfiles["daily_hits"] = sys.argv[11]
-outfiles["daily_users"] = sys.argv[12]
+outfiles["hosts"] = outdir + "hosts.txt"
+outfiles["hours"] = outdir + "hours.txt"
+outfiles["resources"] = outdir + "resources.txt"
+outfiles["blocked"] = outdir + "blocked.txt"
+outfiles["hours_no_overlap"] =  outdir + "hours_no_overlap.txt"
+outfiles["resources_most_requested"] = outdir + "resources_most_requested.txt"
+outfiles["resources_least_requested"] = outdir + "resources_least_requested.txt"
+outfiles["server_err"] = outdir + "server_error.txt"
+outfiles["resources_not_found"] = outdir + "resources_not_found.txt"
+outfiles["daily_hits"] = outdir + "daily_hits.txt"
+outfiles["daily_users"] = outdir + "daily_users.txt"
 
 log = utility.Logger("./")
 
 hosts = host.HostActivity()
 resources = resource.ResourceStatistics()
-time = time_statistics.TimeStatistics(hours=1, n_top=10)
+num_busy_hours = 10
+time = time_statistics.TimeStatistics(hours=1, n_top=num_busy_hours)
 blocked = block_hosts.BlockedHosts(watch_seconds=20, block_seconds=300, chances=3)
 
 blocked_entries = []
@@ -106,24 +109,27 @@ except:
 # Feature 1
 # Get the top ten active hosts;
 # Write the name of hosts and number of activities to output file
-top_hosts = hosts.top(10, host.COUNT)
+num = 10
+top_hosts = hosts.top(num, host.COUNT)
 output_statistics(top_hosts, outfiles["hosts"],
-                  "Output the top ten active hosts to file {0}".format(outfiles["hosts"]))
+                  "Output the top {0} active hosts to file {1}".format(num, outfiles["hosts"]))
 
 # Feature 2
 # Get the top ten resources consuming the most bandwidth;
 # Write the name of resources to output file
-big_resources = resources.top(10, resource.BANDWIDTH)
+num = 10
+big_resources = resources.top(num, resource.BANDWIDTH)
 output_statistics(big_resources, outfiles["resources"],
-                  "Output the top ten resources that consumes most bandwidth to file {0}"
-                  .format(outfiles["resources"]), with_count=False)
+                  "Output the top {0} resources that consumes most bandwidth to file {1}"
+                  .format(num, outfiles["resources"]), with_count=False)
 
 # Feature 3
 # Get the top busiest hours;
 # write the top busiest hours and the number of logs to output
 top_busy_hours = time.top()
 output_statistics(top_busy_hours, outfiles["hours"],
-                  "Output the top ten busy hours to file {0}".format(outfiles["hours"]))
+                  "Output the top {0} busy hours to file {1}"
+                  .format(num_busy_hours, outfiles["hours"]))
 
 # Feature 4
 # Write the blocked entries to output
@@ -135,24 +141,26 @@ output_logs(blocked_entries, outfiles["blocked"],
 # write the top busiest hours and the number of logs to output
 top_busy_hours = time.top_no_overlap()
 output_statistics(top_busy_hours, outfiles["hours_no_overlap"],
-                  "Output the top ten non-overlapping busy hours to file {0}"
-                  .format(outfiles["hours_no_overlap"]))
+                  "Output the top {0} non-overlapping busy hours to file {1}"
+                  .format(num_busy_hours, outfiles["hours_no_overlap"]))
 
 # Feature 6
 # Get the top ten resources attracting the most requests;
 # Write the name of resources and number of requests to output file
-top_resources = resources.top(10, resource.COUNT)
+num = 10
+top_resources = resources.top(num, resource.COUNT)
 output_statistics(top_resources, outfiles["resources_most_requested"],
-                  "Output the top ten resources that users like to request the most {0}"
-                  .format(outfiles["resources_most_requested"]))
+                  "Output the top {0} resources that users like to request the most {1}"
+                  .format(num, outfiles["resources_most_requested"]))
 
 # Feature 7
 # Get the ten resources attracting the least requests;
 # Write the name of resources and number of requests to output file
-bottom_resources = resources.bottom(10, resource.COUNT)
+num = 10
+bottom_resources = resources.bottom(num, resource.COUNT)
 output_statistics(bottom_resources, outfiles["resources_least_requested"],
-                  "Output the ten resources that users like to request the least {0}"
-                  .format(outfiles["resources_least_requested"]))
+                  "Output the {0} resources that users like to request the least {1}"
+                  .format(num, outfiles["resources_least_requested"]))
 
 # Feature 8
 # Write the logs with server error to output
