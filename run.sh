@@ -5,6 +5,7 @@ if [ $# -ge 1 ]
 then
     if [ "$1" == "--test" -o "$1" == "-t" ];
     then
+	mkdir ./log_output/test
 	rm ./log_output/test/*.txt
 	python ./src/process_log.py ./log_input/log_test.txt ./log_output/test/
     elif [ "$1" == "--profile" -o "$1" == "-p" ];
