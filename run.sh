@@ -6,14 +6,11 @@ then
     if [ "$1" == "--test" -o "$1" == "-t" ];
     then
 	mkdir ./log_output/test
-	rm ./log_output/test/*.txt
 	python ./src/process_log.py ./log_input/log_test.txt ./log_output/test/
     elif [ "$1" == "--profile" -o "$1" == "-p" ];
     then
-	rm ./log_output/*.txt
 	python -m cProfile -s tottime ./src/process_log.py ./log_input/log.txt ./log_output/
     fi
 else
-    rm ./log_output/*.txt
     python ./src/process_log.py ./log_input/log.txt ./log_output/
 fi
