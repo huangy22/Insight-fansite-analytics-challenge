@@ -161,7 +161,7 @@ This project is designed for a NASA fan website that generates a large amount of
 
     *Output*:
     
-    e.g., `daily_users.txt`
+    e.g., `daily_hosts.txt`
 
         01/Jul/1995,4699
         02/Jul/1995,3412
@@ -172,21 +172,42 @@ This project is designed for a NASA fan website that generates a large amount of
 Randomly pick a number of IP addresses and request its geolocation from web service `http://ipinfo.io/`. The results can be visualized in a map. To get the geolocations maps, run the command
 
     ./run_geolocation.sh
-which will run a python script to request all the geolocations and then start a HTTP server. You need to open your browser and type in "localhost:8080" to obatin the interactive visualization.
+
+which will run a python script to request all the geolocations (which may takes several minutes). You need to start a python server by typing
+
+    python -m SimpleHTTPServer 8080
+
+in your terminal, then open your browser and type in 
+
+    http://localhost:8080/geochart/
+
+ to obatin the interactive visualization.
 
 e.g.
     ![Geolocation Map](images/geo_map.png)
 
-* **Feature 13: Number of Users per day**
+* **Feature 13: Number of Users hourly Analysis**
 
-    List the number of users during each day and write the results into a file called `daily_users.txt`. Time complexity is O(N).
+    List the number of users during each hour of the day and write the results into a file called `hourly_hosts.txt`. Time complexity is O(N).
 
     *Output*:
     
-    e.g., `daily_users.txt`
+    e.g., `hourly_hosts.txt`
 
-        01/Jul/1995,4699
-        02/Jul/1995,3412
+        01:00:00,4699
+        02:00:00,3412
+        …
+
+* **Feature 14: Number of Hits hourly Analysis**
+
+    List the number of hits during each hour of the day and write the results into a file called `hourly_hits.txt`. Time complexity is O(N).
+
+    *Output*:
+    
+    e.g., `hourly_hits.txt`
+
+        01:00:00,6699
+        02:00:00,8412
         …
 
 ## Description of Data
@@ -226,5 +247,8 @@ In this code, each level of codes only depend on the lower levels. The code is d
 *Error Handling*: When error happens in the utility and feature levels, the function will raise an error depending the error type. The error will be caught by the main code (process_log.py). In the main code, users can decide how to deal with different types of error, for example, if one line in the log file doesn't fit the correct format, the main code will print out a warning and continue with the next line; if there is an error in opening the input or output file, the code will be aborted with an error message printed out. All the printed out messages are recorded in the log file `process.log` in the main directory.
 
 ## Future Improvement
+
+The time profiling result shows the most time consuming parts in the code are time window analysis (find the busiest periods), and  data format recognization and transformation. The efficiency of both functionalities can be improved by cython.
+
 
 

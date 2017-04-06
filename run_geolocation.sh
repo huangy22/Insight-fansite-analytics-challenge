@@ -4,4 +4,4 @@
 # the contents of this script could be replaced with similar files from any major language
 
 # I'll execute my programs, with the input directory log_input and output the files in the directory log_output
-python ./src/geolocation.py ./log_output/test/hosts_random.txt ./geochart/
+python ./src/geolocation.py ./log_output/test/hosts_sample.txt ./geochart/
