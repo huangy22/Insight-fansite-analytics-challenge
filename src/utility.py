@@ -259,6 +259,64 @@ class LinkedList:
                 return_list.append(data_list[i])
         return return_list
 
+class SortedList:
+    """
+    SortedList: a descending ordered list with a maximum length.
+    """
+
+    def __init__(self, max_length):
+        """
+        Initialize a sorted list with fixed length.
+        Args:
+            length(int): the fixed maximum length of the sorted list.
+        """
+        self.__max_length = max_length
+        self.__minheap = []
+
+    def push(self, new_data):
+        """
+        Insert a new data into the sorted list.
+        Args:
+            new_data(data object): the data of the new node that needs to be inserted.
+        """
+        if len(self.__minheap) < self.__max_length:
+            heapq.heappush(self.__minheap, new_data)
+        else:
+            heapq.heappushpop(self.__minheap, new_data)
+
+    def length(self):
+        """
+        Get the length of the list.
+        Returns:
+            length(int): the length of the list
+        """
+        return len(self.__minheap)
+
+    def min(self):
+        """
+        Get the minimum value of the list.
+        Returns:
+            minimum_data(data object): the smallest data in the list
+        """
+        return self.__minheap[0]
+
+    def get(self, order="descend"):
+        """
+        Get a list of data in the list in descending order.
+        Returns:
+            return_list(list): the sorted list in descending order
+        """
+        ascend_list = [heapq.heappop(self.__minheap) for i in range(len(self.__minheap))]
+        if order == "descend":
+            descend_list = []
+            for i in range(len(ascend_list))[::-1]:
+                descend_list.append(ascend_list[i])
+            return descend_list
+        elif order == "ascend":
+            return ascend_list
+        else:
+            raise NotImplementedError("sorting order {0} is not implemented.".format(order))
+
 class TestAlgorithms(unittest.TestCase):
     """The unittest class for nlargest_dict and linked list."""
     def setUp(self):

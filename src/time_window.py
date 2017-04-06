@@ -9,6 +9,7 @@ import unittest
 import datetime as dt
 import time
 from collections import deque
+import heapq
 import utility
 
 class TimeWindow(object):
@@ -43,11 +44,12 @@ class TimeWindow(object):
 
         self.__queue = deque()
 
-        self.__top_overlap = utility.LinkedList(self.__n_top)
+        self.__top_overlap = utility.SortedList(self.__n_top) 
 
-        self.__last_node = None
-        self.__sorted = True
-        self.__top_no_overlap = utility.LinkedList(self.__n_top)
+        self.__is_pending = False
+        self.__pending_data = None
+
+        self.__top_no_overlap = utility.SortedList(self.__n_top)
 
     def __shift_time_window(self, entry):
         """
@@ -84,7 +86,7 @@ class TimeWindow(object):
                         n_same_time += 1
         return datalist
 
-    def __update_top(self, number, time):
+    def __update_top_allow_overlap(self, number, time):
         """
         Given the number of logs and starting time of the current time window,
         update the __top_overlap list.
@@ -93,9 +95,7 @@ class TimeWindow(object):
             time(datetime): starting time in the current queue.
         """
         new_data = [number, time]
-        if self.__top_overlap.length < self.__top_overlap.max_length or\
-            tuple(new_data) > tuple(self.__top_overlap.min()):
-            self.__top_overlap.sorted_insert_data(new_data)
+        self.__top_overlap.push(new_data) 
 
     def __update_top_without_overlap(self, number, time):
         """
@@ -108,32 +108,34 @@ class TimeWindow(object):
         """
 
         new_data = [number, time]
-        if self.__last_node is None:
-            self.__last_node = self.__top_no_overlap.sorted_insert_data(new_data)
+
+        # Check if the current time window overlaps with the pending time window
+        if self.__is_pending and time - self.__time_window < self.__pending_data[self.__TIME]:
+
+            # Check if the current number is larger than the pending time window data
+            if tuple(new_data) > tuple(self.__pending_data):
+                # Replace the number of logs if the current number is larger
+                self.__pending_data = new_data
+
         else:
-            # Check whether the current time window overlaps with others in __top_overlap
-            if time - self.__time_window < self.__last_node.data[self.__TIME]:
 
-                # The time window overlaps with the last time window pushed to __top_overlap
-                if tuple(new_data) > tuple(self.__last_node.data):
-                    # Replace the number of logs if the current number is larger
-                    self.__last_node.replace_data(new_data)
-                    self.__sorted = False
-                    self.__last_node.data = new_data
+            # Check if there is a pending data that needs to be pushed into the top list
+            if self.__is_pending:
+                # Put the __pending_data in the right place in the list
+                self.__top_no_overlap.push(self.__pending_data)
+                self.__is_pending = False
+                self.__pending_data = None
 
-            else:
-                # The time window doesn't overlap with any time windows in __top_overlap
-                if not self.__sorted:
-                    # Put the __last_node in the right place in the list
-                    self.__last_node = self.__top_no_overlap.sort_node(self.__last_node)
-                    self.__sorted = True
+            # Check if the current time window can potentially be pushed
+            # Namingly if the top list is not full or the number is larger than the smallest
+            # in the list
+            if self.__top_no_overlap.length() < self.__n_top\
+               or tuple(new_data) > tuple(self.__top_no_overlap.min()):
+                print self.__top_no_overlap.min(), new_data
 
-                if self.__top_no_overlap.length < self.__top_no_overlap.max_length\
-                   or tuple(new_data) > tuple(self.__top_no_overlap.min()):
-
-                    # Push the current time window to the top list when the top list is not
-                    # full or the number of logs is larger than the smallest in the top list
-                    self.__last_node = self.__top_no_overlap.sorted_insert_data(new_data)
+                # Record current time window as a pending time window
+                self.__is_pending = True
+                self.__pending_data = new_data
 
     def update(self, entry):
         """
@@ -144,7 +146,7 @@ class TimeWindow(object):
         """
         window_list  = self.__shift_time_window(entry)
         for (number, time) in window_list:
-            self.__update_top(number, time)
+            self.__update_top_allow_overlap(number, time)
             self.__update_top_without_overlap(number, time)
 
     def finalize(self, entry):
@@ -163,7 +165,7 @@ class TimeWindow(object):
             result(list): A list of length-2 lists. Each length-2 lists contains list[0]
             as the number of activities of the time window and list[1] the starting time.
         """
-        result = self.__top_overlap.get_list(order="descend")
+        result = self.__top_overlap.get()
         for data in result:
             data[1] = data[1].strftime("%d/%b/%Y:%H:%M:%S %z")
         return result
@@ -175,7 +177,7 @@ class TimeWindow(object):
             result(list): A list of length-2 lists. Each length-2 lists contains list[0]
             as the number of activities of the time window and list[1] the starting time.
         """
-        result = self.__top_no_overlap.get_list(order="descend")
+        result = self.__top_no_overlap.get()
         for data in result:
             data[1] = data[1].strftime("%d/%b/%Y:%H:%M:%S %z")
         return result
@@ -220,11 +222,13 @@ class TestTimeWindow(unittest.TestCase):
         hours.finalize(final)
 
         result = hours.top()
+        print result
         self.assertEquals(result[0], [5, '01/Jul/1995:08:00:11 '])
         self.assertEquals(result[1], [3, '01/Jul/1995:08:00:13 '])
         self.assertEquals(result[2], [3, '01/Jul/1995:01:00:03 '])
 
         result2 = hours.top_no_overlap()
+        print result2
         self.assertEquals(result2[0], [5, '01/Jul/1995:08:00:11 '])
         self.assertEquals(result2[1], [3, '01/Jul/1995:01:00:03 '])
         self.assertEquals(result2[2], [2, '01/Jul/1995:02:00:06 '])
