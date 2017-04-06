@@ -14,31 +14,28 @@ class BlockedHosts(object):
     The class that keeps track of the failed login and block further activities if a host
     fails to login for a number of times consecutively within a specified time window.
     """
-    # pylint: disable=too-many-instance-attributes
-    # Eight is reasonable in this case.
-    def __init__(self, watch_seconds=20, block_seconds=300, chances=3):
+    # Private Constants:
+    # The name of indices in the monitor_dict and block_dict.
+    (__LAST_EVENT, __TIME_LEFT, __CHANCES_LEFT) = (0, 1, 2)
+    def __init__(self, monitor_seconds=20, block_seconds=300, chances=3):
         """
         Public variables:
-            watch_time: the time period during which a number of failed login attempts will
+            monitor_time: the time period during which a number of failed login attempts will
                 trigger the block event
             block_time: the time period to block the user
             chances: the number of attempts of failed login
         Private variables:
-            __watch(dict): keep track the events after first failed login happens, key: host name,
-                value: a list, [time of last post, watch time left, chances left]
-            __block(dict): keep track the events after the user gets blocked, key: host name,
-                value: a list, [time of last post, watch time left, chances left]
+            __monitor_dict(dict): keep track the events after first failed login happens, key: host name,
+                value: a list, [time of last post, monitor time left, chances left]
+            __block_dict(dict): keep track the events after the user gets blocked, key: host name,
+                value: a list, [time of last post, monitor time left, chances left]
         """
-        self.watch_time = watch_seconds
-        self.block_time = block_seconds
-        self.chances = chances
+        self.__monitor_time = monitor_seconds
+        self.__block_time = block_seconds
+        self.__chances = chances
 
-        self.__watch = {}
+        self.__monitor = {}
         self.__block = {}
-
-        self.__last_post_index = 0
-        self.__time_left_index = 1
-        self.__chances_left_index = 2
 
     def __update_block(self, host, time):
         """
@@ -53,39 +50,39 @@ class BlockedHosts(object):
         is_blocked = False
         if host in self.__block:
             status = self.__block[host]
-            delta_time = time_difference(status[self.__last_post_index], time)
-            if delta_time <= status[self.__time_left_index]:
+            delta_time = time_difference(status[self.__LAST_EVENT], time)
+            if delta_time <= status[self.__TIME_LEFT]:
                 is_blocked = True
-                status[self.__last_post_index] = time
-                status[self.__time_left_index] -= delta_time
+                status[self.__LAST_EVENT] = time
+                status[self.__TIME_LEFT] -= delta_time
             else:
                 self.__block.pop(host, None)
         return is_blocked
 
-    def __update_watch(self, host, time):
+    def __update_monitor(self, host, time):
         """
-        For a new entry of a host already in the watch dictionary, check if the entry needs to be
-        added to block dictionary and update the watch dictionary accordingly.
+        For a new entry of a host already in the monitor dictionary, check if the entry needs to be
+        added to block dictionary and update the monitor dictionary accordingly.
         Args:
-            host(str): the host name of the entry. The host is already in the watch dictionary.
+            host(str): the host name of the entry. The host is already in the monitor dictionary.
             time(datetime): the time of the new entry.
         """
-        status = self.__watch[host]
-        delta_time = time_difference(status[self.__last_post_index], time)
-        if delta_time <= status[self.__time_left_index]:
-            if status[self.__chances_left_index] == 1:
-                self.__watch.pop(host, None)
-                self.__block[host] = [time, self.block_time]
+        status = self.__monitor[host]
+        delta_time = time_difference(status[self.__LAST_EVENT], time)
+        if delta_time <= status[self.__TIME_LEFT]:
+            if status[self.__CHANCES_LEFT] == 1:
+                self.__monitor.pop(host, None)
+                self.__block[host] = [time, self.__block_time]
             else:
-                status[self.__last_post_index] = time
-                status[self.__time_left_index] -= delta_time
-                status[self.__chances_left_index] -= 1
+                status[self.__LAST_EVENT] = time
+                status[self.__TIME_LEFT] -= delta_time
+                status[self.__CHANCES_LEFT] -= 1
         else:
-            self.__watch.pop(host, None)
+            self.__monitor.pop(host, None)
 
     def update(self, entry):
         """
-        Given a new entry, update the status of watch and block dictionaries. Return whether the
+        Given a new entry, update the status of monitor and block dictionaries. Return whether the
         entry needs to be blocked.
         Args:
             entry(dict): A Apache log dictionary.
@@ -99,13 +96,13 @@ class BlockedHosts(object):
             is_blocked = self.__update_block(host, time)
         else:
             if entry["Request"] == "/login" and entry["Status"] == 401:
-                if host in self.__watch:
-                    self.__update_watch(host, time)
+                if host in self.__monitor:
+                    self.__update_monitor(host, time)
                 else:
-                    self.__watch[host] = [time, self.watch_time, self.chances-1]
+                    self.__monitor[host] = [time, self.__monitor_time, self.__chances-1]
             else:
-                if host in self.__watch:
-                    self.__watch.pop(host, None)
+                if host in self.__monitor:
+                    self.__monitor.pop(host, None)
         return is_blocked
 
 def time_difference(time_before, time_after):
@@ -134,17 +131,17 @@ class TestBlockedHosts(unittest.TestCase):
         time.append(dt.datetime.strptime('01/Jul/1995:00:00:21', "%d/%b/%Y:%H:%M:%S"))
         time.append(dt.datetime.strptime('01/Jul/1995:00:10:11', "%d/%b/%Y:%H:%M:%S"))
 
-        self.data = [{"Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[0]},
-                     {"Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[1]},
-                     {"Host": "B", "Status": 200, "Request_Type": "POST", "Time": time[2]},
-                     {"Host": "B", "Status": 200, "Request_Type": "POST", "Time": time[3]},
-                     {"Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[4]},
-                     {"Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[5]},
-                     {"Host": "A", "Status": 401, "Request_Type": "POST", "Time": time[6]},
-                     {"Host": "B", "Status": 200, "Request_Type": "POST", "Time": time[7]},
-                     {"Host": "A", "Status": 200, "Request_Type": "POST", "Time": time[8]},
-                     {"Host": "A", "Status": 401, "Request_Type": "GET", "Time": time[9]},
-                     {"Host": "A", "Status": 200, "Request_Type": "POST", "Time": time[10]},
+        self.data = [{"Host": "A", "Status": 401, "Request": "/login", "Time": time[0]},
+                     {"Host": "A", "Status": 401, "Request": "/login", "Time": time[1]},
+                     {"Host": "B", "Status": 200, "Request": "/login", "Time": time[2]},
+                     {"Host": "B", "Status": 200, "Request": "/login", "Time": time[3]},
+                     {"Host": "A", "Status": 401, "Request": "/login", "Time": time[4]},
+                     {"Host": "A", "Status": 401, "Request": "/login", "Time": time[5]},
+                     {"Host": "A", "Status": 401, "Request": "/login", "Time": time[6]},
+                     {"Host": "B", "Status": 200, "Request": "/login", "Time": time[7]},
+                     {"Host": "A", "Status": 200, "Request": "/login", "Time": time[8]},
+                     {"Host": "A", "Status": 401, "Request": "/item", "Time": time[9]},
+                     {"Host": "A", "Status": 200, "Request": "/login", "Time": time[10]},
                     ]
         self.time = time
 

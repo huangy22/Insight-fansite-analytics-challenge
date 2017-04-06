@@ -8,8 +8,14 @@ Author: Yuan Huang
 import unittest
 import utility
 
+# COUNT, SIZE, BANDWIDTH are public variables which can be used when set
+# the sorting method in the ResourceStatistics.top() function.
+
+# COUNT: The total number of requests for each resource
 COUNT = 0
+# SIZE: The size of resource
 SIZE = 1
+# BANDWIDTH: The total network traffic for this resource
 BANDWIDTH = 2
 
 class ResourceStatistics(object):
@@ -17,20 +23,17 @@ class ResourceStatistics(object):
     The class that records the information for each resources, including
     the times of request, the size and consumed bandwidth.
     """
+    # Names for the indices of the list in ResourceStatistics.__resource.
+    (__COUNT, __SIZE, __BANDWIDTH) = (0, 1, 2)
     def __init__(self):
         """
-        Contains a dictionary __resource with resource names as keys and a list as values.
-        The value list has three items: value[__count_index] is the times of request
-        for each resource, value[__size_index] is the size of resource,
-        value[__bandwidth_index] is the bandwidth consumed by each resource..
-
-        Count, size, bandwidth are public variables which can be used when assigning
-        the feature to sort by in the top() function.
+        Private members:
+            __resource(dict): The dictionary with resource name as its key and a list as value. The list is
+               length 3, for example
+               list[__COUNT, __SIZE, __BANDWIDTH] = (the total number of requests of the resource,
+                                                     the size of resource,
+                                                     total network traffic for the resource).
         """
-        self.__count_index = 0
-        self.__size_index = 1
-        self.__bandwidth_index = 2
-
         self.__resource = {}
 
     def update(self, entry):
@@ -42,22 +45,22 @@ class ResourceStatistics(object):
 
         if res != "/":
             if res in self.__resource:
-                self.__resource[res][self.__count_index] += 1
-                self.__resource[res][self.__bandwidth_index] += entry["Size"]
-                self.__resource[res][self.__size_index] = self.__resource[res]\
-                    [self.__bandwidth_index]/float(self.__resource[res][self.__count_index])
+                self.__resource[res][self.__COUNT] += 1
+                self.__resource[res][self.__BANDWIDTH] += entry["Size"]
+                self.__resource[res][self.__SIZE] = self.__resource[res]\
+                    [self.__BANDWIDTH]/float(self.__resource[res][self.__COUNT])
             else:
                 self.__resource[res] = [0, 0, 0]
-                self.__resource[res][self.__count_index] = 1
-                self.__resource[res][self.__size_index] = float(entry["Size"])
-                self.__resource[res][self.__bandwidth_index] = entry["Size"]
+                self.__resource[res][self.__COUNT] = 1
+                self.__resource[res][self.__SIZE] = float(entry["Size"])
+                self.__resource[res][self.__BANDWIDTH] = entry["Size"]
 
-    def bottom(self, number, feature):
+    def bottom(self, number, sort_method):
         """
         Get the top resources list with a specified number and sorted by specified feature.
         Args:
             number(int): the number of top resources.
-            feature: can only take values COUNT, SIZE or BANDWIDTH.
+            sort_method: can only take values COUNT, SIZE or BANDWIDTH.
         Returns:
             A list of tuples. In each tuple, the first element is the count/size/bandwidth, the
             second item is the name of the resource.
@@ -65,23 +68,23 @@ class ResourceStatistics(object):
             NotImplementedError: Error occurs when choosen feature is not COUNT,
             SIZE, or BANDWIDTH.
         """
-        if feature == COUNT:
-            idx = self.__count_index
-        elif feature == BANDWIDTH:
-            idx = self.__bandwidth_index
-        elif feature == SIZE:
-            idx = self.__size_index
+        if sort_method == COUNT:
+            idx = self.__COUNT
+        elif sort_method == BANDWIDTH:
+            idx = self.__BANDWIDTH
+        elif sort_method == SIZE:
+            idx = self.__SIZE
         else:
             raise NotImplementedError
         keys, values = utility.nsmallest_dict(number, self.__resource, idx)
         return zip(values, keys)
 
-    def top(self, number, feature):
+    def top(self, number, sort_method):
         """
         Get the top resources list with a specified number and sorted by specified feature.
         Args:
             number(int): the number of top resources.
-            feature: can only take values COUNT, SIZE or BANDWIDTH.
+            sort_method: can only take values COUNT, SIZE or BANDWIDTH.
         Returns:
             A list of tuples. In each tuple, the first element is the count/size/bandwidth, the
             second item is the name of the resource.
@@ -89,38 +92,16 @@ class ResourceStatistics(object):
             NotImplementedError: Error occurs when choosen feature is not COUNT,
             SIZE, or BANDWIDTH.
         """
-        if feature == COUNT:
-            idx = self.__count_index
-        elif feature == BANDWIDTH:
-            idx = self.__bandwidth_index
-        elif feature == SIZE:
-            idx = self.__size_index
+        if sort_method == COUNT:
+            idx = self.__COUNT
+        elif sort_method == BANDWIDTH:
+            idx = self.__BANDWIDTH
+        elif sort_method == SIZE:
+            idx = self.__SIZE
         else:
             raise NotImplementedError
         keys, values = utility.nlargest_dict(number, self.__resource, idx)
         return zip(values, keys)
-
-    def get(self, resource, feature):
-        """
-        Get the specified feature of a certain host.
-        Args:
-            feature: can only take values COUNT, SIZE, BANDWIDTH.
-        Returns:
-            the value of the feature of the resource.
-        Raises:
-            NotImplementedError: Error occurs when choosen feature is not COUNT,
-            SIZE or BANDWIDTH.
-        """
-        if feature == COUNT:
-            idx = self.__count_index
-        elif feature == BANDWIDTH:
-            idx = self.__bandwidth_index
-        elif feature == SIZE:
-            idx = self.__size_index
-        else:
-            raise NotImplementedError
-        return self.__resource[resource][idx]
-
 
 class TestResource(unittest.TestCase):
     def setUp(self):
@@ -151,14 +132,6 @@ class TestResource(unittest.TestCase):
         bottom = resources.bottom(2, SIZE)
         self.assertEqual(bottom[0], (5.0/3, "A"))
         self.assertEqual(bottom[1], (2.0, "C"))
-
-    def test_update_resource(self):
-        resources = ResourceStatistics()
-        for entry in self.data:
-            resources.update(entry)
-        self.assertEqual(resources.get("A", COUNT), 3)
-        self.assertEqual(resources.get("A", SIZE), 5.0/3)
-        self.assertEqual(resources.get("A", BANDWIDTH), 5)
 
     def test_find_large_resources(self):
         resources = ResourceStatistics()

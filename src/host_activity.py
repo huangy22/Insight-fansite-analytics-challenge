@@ -10,9 +10,12 @@ Author: Yuan Huang
 """
 import unittest
 import utility
+import random
 
-# Count and size are public variables which can be used when assigning
-# the feature to sort by in the top() function.
+# COUNT and SIZE are public variables which can be used when set
+# the sorting method in the HostActivity.top() function.
+# COUNT: The total number of activities
+# SIZE: The size of resources that have been requested by the user
 COUNT = 0
 SIZE = 1
 
@@ -22,20 +25,18 @@ class HostActivity(object):
     host.
     Example: host = HostActivity()
     """
+    # Names for the indices of the list in HostActivity.__host.
+    (__COUNT, __SIZE) = (0, 1)
     def __init__(self):
         """
         Contains a dictionary __host with host names as keys and a list as values.
-        The value list has two items: value[__count_index] is the count of activities of each
-        host, value[__size_index] is the total size of resources requested by the host.
-
         Private members:
+            __host(dict): The dictionary with user IP as its key and a list as value. The list is
+               length 2, for example
+               list[__COUNT, __SIZE] = (the total number of events of the user,
+                                        the total size of resources requested by the user).
         """
-
-        self.__count_index = 0
-        self.__size_index = 1
-
         self.__host = {}
-        self.__daily = {}
 
     def update(self, entry):
         """Add the info of entry into the statistics of each host.
@@ -43,51 +44,44 @@ class HostActivity(object):
             entry(dict): the dictionary of a log item.
         """
         if entry["Host"] in self.__host:
-            self.__host[entry["Host"]][self.__count_index] += 1
-            self.__host[entry["Host"]][self.__size_index] += entry["Size"]
+            self.__host[entry["Host"]][self.__COUNT] += 1
+            self.__host[entry["Host"]][self.__SIZE] += entry["Size"]
         else:
             self.__host[entry["Host"]] = [0, 0]
-            self.__host[entry["Host"]][self.__count_index] = 1
-            self.__host[entry["Host"]][self.__size_index] = entry["Size"]
+            self.__host[entry["Host"]][self.__COUNT] = 1
+            self.__host[entry["Host"]][self.__SIZE] = entry["Size"]
 
-    def top(self, number, feature):
+    def top(self, number, sort_method):
         """
         Get the top hosts list with a specified number and sorted by specified feature.
         Args:
             number(int): the number of top hosts.
-            feature: can only take values COUNT or SIZE.
+            sort_method: can only take values COUNT or SIZE.
         Returns:
             A list of tuples. In each tuple, the first element is the count/size, the
             second item is the name of the host.
         Raises:
             NotImplementedError: Error occurs when choosen feature is not COUNT or SIZE.
         """
-        if feature == COUNT:
-            idx = self.__count_index
-        elif feature == SIZE:
-            idx = self.__size_index
+        if sort_method == COUNT:
+            idx = self.__COUNT
+        elif sort_method == SIZE:
+            idx = self.__SIZE
         else:
             raise NotImplementedError
         keys, values = utility.nlargest_dict(number, self.__host, idx)
         return zip(values, keys)
 
-    def get(self, host, feature):
+    def sample(self, number):
         """
-        Get the specified feature of a certain host.
+        Get the random hosts list with a specified number.
         Args:
-            feature: can only take values COUNT or SIZE.
+            number(int): the number of random hosts.
         Returns:
-            the value of the feature of the host.
-        Raises:
-            NotImplementedError: Error occurs when choosen feature is not COUNT or SIZE.
+            A list of strings. Each string is the name of the host.
         """
-        if feature == COUNT:
-            idx = self.__count_index
-        elif feature == SIZE:
-            idx = self.__size_index
-        else:
-            raise NotImplementedError
-        return self.__host[host][idx]
+        keys = random.sample(self.__host.keys(), number)
+        return zip(range(len(keys)), keys)
 
 class TestHost(unittest.TestCase):
     def setUp(self):
@@ -106,7 +100,6 @@ class TestHost(unittest.TestCase):
         hosts = HostActivity()
         for entry in self.data:
             hosts.update(entry)
-        self.assertEqual(hosts.get("A", COUNT), 3)
 
     def test_find_active_hosts(self):
         hosts = HostActivity()

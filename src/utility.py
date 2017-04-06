@@ -66,44 +66,6 @@ class Logger(logging.Logger):
         self.error(msg)
         raise AssertionError
 
-def output_logs(entries, filename, msg):
-    """
-    Write the selected logs into log file
-    Args:
-        entries(list): The list contains all the selected logs strings
-        filename(string): Name of the output file
-        msg(string): Information about the output file
-    """
-    try:
-        log.info(msg)
-        with open(filename, "w") as writer:
-            for entry in entries:
-                writer.write(entry)
-    except:
-        log.info("Fail to output to log file. \n{0}".format(traceback.format_exc()))
-
-def output_statistics(records, filename, msg, with_count=True):
-    """
-    Write the statistics data to output
-    Args:
-        records(list): The list contains statistical records. Each record is a length-2
-            list, with first element the count, and second element as the name of the item
-        filename(string): Name of the output file
-        msg(string): Information about the output file
-        with_count(bool): Whether you want to output both name and count (True) or only
-            name(False)
-    """
-    try:
-        log.info(msg)
-        with open(filename, "w") as writer:
-            if with_count:
-                for record in records:
-                    writer.write(record[1]+","+str(record[0])+"\n")
-            else:
-                for record in records:
-                    writer.write(record[1]+"\n")
-    except:
-        log.info("Fail to output to file. \n{0}".format(traceback.format_exc()))
 
 def memory_usage():
     """

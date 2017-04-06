@@ -1,5 +1,0 @@
-mv blocked_test.txt blocked.txt
-mv hours_test.txt hours.txt
-mv hosts_test.txt hosts.txt
-mv resources_test.txt resources.txt
-mv hours_no_overlap_test.txt hours_no_overlap.txt

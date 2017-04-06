@@ -81,7 +81,7 @@ This project is designed for a NASA fan website that generates a large amount of
 
     Note that this feature is independent with the other features in this code. For instance, any requests that end up in the `blocked.txt` file will still be counted toward the most active IP host calculation, bandwidth consumption and busiest 60-minute period.
 
-* **Feature 5: Most Busiest Hours (Without Overlapping)**
+* **Feature 5: Most Busiest Hours (Improved Metrics: No Overlapping)**
 
     In Feature 3, the provided 60-minute periods  are allowed to overlap with each other, which results in the top 10 periods being very similar and having big overlaps. In this feature, the selected top 10 busiest periods are not allowed to overlap, which turns out to be more informative than feature 3.
 
