@@ -27,7 +27,7 @@ This project is designed for a NASA fan website that generates a large amount of
 
 *  **Feature 1: Most Active hosts** 
 
-    List in descending order the top 10 most active hosts/IP addresses that have accessed the site.
+    List in descending order the top 10 most active hosts/IP addresses that have accessed the site. The computational complexity of this feature is O(N), where N is the number of logs.
 
     *Output*: The 10 most active hosts/IP addresses in descending order and how many times they have accessed are written in a file named `hosts.txt`. 
 
@@ -39,7 +39,7 @@ This project is designed for a NASA fan website that generates a large amount of
 
 * **Feature 2: Resources Consuming Most Bandwidth**
 
-    Identify and list the 10 resources that consume the most bandwidth on the site.
+    Identify and list the 10 resources that consume the most bandwidth on the site. The computational complexity of this feature is O(N).
 
     *Output*: These most bandwidth-intensive resources, sorted in descending order and separated by a new line, are written to a file called `resources.txt`. 
 
@@ -51,7 +51,7 @@ This project is designed for a NASA fan website that generates a large amount of
 
 * **Feature 3: Most Busiest Hours**
 
-    List in descending order the site’s 10 busiest (i.e. most frequently visited) 60-minute periods. The 60-minute periods are allowed to overlap.
+    List in descending order the site’s 10 busiest (i.e. most frequently visited) 60-minute periods. The 60-minute periods are allowed to overlap. This feature involves a linked list insertion for each line, therefore the time complexity is O(N*n), where n=10.
 
     *Output*: The start time of each 60-minute window followed by the number of times the site was accessed during that time period are written to a file named `hours.txt`.  The 10 lines are listed in descending order with the busiest 60-minute window shown first. 
 
@@ -63,7 +63,7 @@ This project is designed for a NASA fan website that generates a large amount of
 
 * **Feature 4: Block Further Activities After Consecutive Failed Login Attempts**
 
-    Detect patterns of three consecutive failed login attempts over 20 seconds in order to block all further attempts to reach the site from the same IP address for the next 5 minutes. Each attempt that would have been blocked is written to a log file named `blocked.txt`.
+    Detect patterns of three consecutive failed login attempts over 20 seconds in order to block all further attempts to reach the site from the same IP address for the next 5 minutes. The time complexity is O(N). Each attempt that would have been blocked is written to a log file named `blocked.txt`.
 
     *Output*:
 
@@ -83,7 +83,7 @@ This project is designed for a NASA fan website that generates a large amount of
 
 * **Feature 5: Most Busiest Hours (Improved Metrics: No Overlapping)**
 
-    In Feature 3, the provided 60-minute periods  are allowed to overlap with each other, which results in the top 10 periods being very similar and having big overlaps. In this feature, the selected top 10 busiest periods are not allowed to overlap, which turns out to be more informative than feature 3.
+    In Feature 3, the provided 60-minute periods  are allowed to overlap with each other, which results in the top 10 periods being very similar and having big overlaps. In this feature, the selected top 10 busiest periods are not allowed to overlap, which turns out to be more informative than feature 3. The time complexity is also O(N*n), where n=10 in our case.
 
     List in descending order the site’s 10 busiest (i.e. most frequently visited) 60-minute period while enforcing the requirement that the time windows don't overlap. The provided results are the 10 best possible periods without overlapping.
 
@@ -97,7 +97,7 @@ This project is designed for a NASA fan website that generates a large amount of
 
 * **Feature 6: Most Requested Resources**
 
-    Identify and list the 10 resources that attract the most requests by users on the site.
+    Identify and list the 10 resources that attract the most requests by users on the site. The time complexity is O(N).
 
     *Output*: These resources with most requests followed by the number of times the resource was requested, sorted in descending order and separated by a new line, are written to a file called `resources_most_requested.txt`. 
 
@@ -109,7 +109,7 @@ This project is designed for a NASA fan website that generates a large amount of
 
 * **Feature 7: Least Requested Resources**
 
-    Identify and list the 10 resources that attract the least requests by users on the site.
+    Identify and list the 10 resources that attract the least requests by users on the site. The time complexity is O(N).
 
     *Output*: These resources with least requests followed by the number of times the resource was requested, sorted in ascending order and separated by a new line, are written to a file called `resources_least_requested.txt`. 
 
@@ -121,7 +121,7 @@ This project is designed for a NASA fan website that generates a large amount of
 
 * **Feature 8: Logs With Server Errors**
 
-    Detect all logs with server error (Status code is between 500 and 599) and write them into a log file called `server_error.txt`.
+    Detect all logs with server error (Status code is between 500 and 599) and write them into a log file called `server_error.txt`. Time complexity is O(N).
 
     *Output*:
 
@@ -133,7 +133,7 @@ This project is designed for a NASA fan website that generates a large amount of
 
 * **Feature 9: Resources With Not Found Errors**
 
-    Detect all the resources with Not Found error (Status code is 404) and write them into a file called `resources_not_found.txt`.
+    Detect all the resources with Not Found error (Status code is 404) and write them into a file called `resources_not_found.txt`. Time complexity is O(N).
 
     *Output*:
 
@@ -145,7 +145,7 @@ This project is designed for a NASA fan website that generates a large amount of
 
 * **Feature 10: Number of Hits per day**
 
-    List the number of logs during each day and write the results into a file called `daily_hits.txt`.
+    List the number of logs during each day and write the results into a file called `daily_hits.txt`. Time complexity is O(N).
 
     *Output*:
     
@@ -157,7 +157,29 @@ This project is designed for a NASA fan website that generates a large amount of
 
 * **Feature 11: Number of Users per day**
 
-    List the number of users during each day and write the results into a file called `daily_users.txt`.
+    List the number of users during each day and write the results into a file called `daily_users.txt`. Time complexity is O(N).
+
+    *Output*:
+    
+    e.g., `daily_users.txt`
+
+        01/Jul/1995,4699
+        02/Jul/1995,3412
+        …
+
+* **Feature 12: Geolocations of IP addresses**
+
+Randomly pick a number of IP addresses and request its geolocation from web service `http://ipinfo.io/`. The results can be visualized in a map. To get the geolocations maps, run the command
+
+    ./run_geolocation.sh
+which will run a python script to request all the geolocations and then start a HTTP server. You need to open your browser and type in "localhost:8080" to obatin the interactive visualization.
+
+e.g.
+    ![Geolocation Map](images/geo_map.png)
+
+* **Feature 13: Number of Users per day**
+
+    List the number of users during each day and write the results into a file called `daily_users.txt`. Time complexity is O(N).
 
     *Output*:
     
@@ -205,4 +227,4 @@ In this code, each level of codes only depend on the lower levels. The code is d
 
 ## Future Improvement
 
-time profile
+
