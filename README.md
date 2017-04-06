@@ -51,7 +51,7 @@ This project is designed for a NASA fan website that generates a large amount of
 
 * **Feature 3: Most Busiest Hours**
 
-    List in descending order the site’s 10 busiest (i.e. most frequently visited) 60-minute periods. The 60-minute periods are allowed to overlap. This feature involves a linked list insertion for each line, therefore the time complexity is O(N*log(n)), where n=10.
+    List in descending order the site’s 10 busiest (i.e. most frequently visited) 60-minute periods. The 60-minute periods are allowed to overlap. This feature involves a heap insertion for each line, therefore the time complexity is O(N*log(n)), where n=10.
 
     *Output*: The start time of each 60-minute window followed by the number of times the site was accessed during that time period are written to a file named `hours.txt`.  The 10 lines are listed in descending order with the busiest 60-minute window shown first. 
 
