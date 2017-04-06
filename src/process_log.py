@@ -214,7 +214,7 @@ output_statistics(outdir, sample_hosts, "hosts_sample.txt",
 # Number of hits at different time of the day
 # Write the hour and the number of hits during that hour to output
 hourly_hits = time_stat.get_hourly_hits()
-output_statistics(outdir, hourly_hits, "hourly_hits",
+output_statistics(outdir, hourly_hits, "hourly_hits.txt",
                   "Output the number of logs during each hour to file {0}".format("hourly_hits.txt"))
 
 # Feature 14

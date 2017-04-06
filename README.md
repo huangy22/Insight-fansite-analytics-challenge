@@ -51,7 +51,7 @@ This project is designed for a NASA fan website that generates a large amount of
 
 * **Feature 3: Most Busiest Hours**
 
-    List in descending order the site’s 10 busiest (i.e. most frequently visited) 60-minute periods. The 60-minute periods are allowed to overlap. This feature involves a linked list insertion for each line, therefore the time complexity is O(N*n), where n=10.
+    List in descending order the site’s 10 busiest (i.e. most frequently visited) 60-minute periods. The 60-minute periods are allowed to overlap. This feature involves a linked list insertion for each line, therefore the time complexity is O(N*log(n)), where n=10.
 
     *Output*: The start time of each 60-minute window followed by the number of times the site was accessed during that time period are written to a file named `hours.txt`.  The 10 lines are listed in descending order with the busiest 60-minute window shown first. 
 
@@ -83,7 +83,7 @@ This project is designed for a NASA fan website that generates a large amount of
 
 * **Feature 5: Most Busiest Hours (Improved Metrics: No Overlapping)**
 
-    In Feature 3, the provided 60-minute periods  are allowed to overlap with each other, which results in the top 10 periods being very similar and having big overlaps. In this feature, the selected top 10 busiest periods are not allowed to overlap, which turns out to be more informative than feature 3. The time complexity is also O(N*n), where n=10 in our case.
+    In Feature 3, the provided 60-minute periods  are allowed to overlap with each other, which results in the top 10 periods being very similar and having big overlaps. In this feature, the selected top 10 busiest periods are not allowed to overlap, which turns out to be more informative than feature 3. The time complexity is also O(N*log(n)), where n=10 in our case.
 
     List in descending order the site’s 10 busiest (i.e. most frequently visited) 60-minute period while enforcing the requirement that the time windows don't overlap. The provided results are the 10 best possible periods without overlapping.
 
