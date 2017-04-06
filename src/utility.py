@@ -259,28 +259,30 @@ class LinkedList:
                 return_list.append(data_list[i])
         return return_list
 
-class SortedList:
+class Heap:
     """
-    SortedList: a descending ordered list with a maximum length.
+    Heap: a min-heaps is implemented
     """
 
     def __init__(self, max_length):
         """
-        Initialize a sorted list with fixed length.
+        Initialize a min-heaps with fixed length.
         Args:
             length(int): the fixed maximum length of the sorted list.
         """
         self.__max_length = max_length
         self.__minheap = []
+        self.__length = 0
 
     def push(self, new_data):
         """
-        Insert a new data into the sorted list.
+        Insert a new data into the min-heap.
         Args:
             new_data(data object): the data of the new node that needs to be inserted.
         """
-        if len(self.__minheap) < self.__max_length:
+        if self.__length < self.__max_length:
             heapq.heappush(self.__minheap, new_data)
+            self.__length += 1
         else:
             heapq.heappushpop(self.__minheap, new_data)
 
@@ -290,7 +292,7 @@ class SortedList:
         Returns:
             length(int): the length of the list
         """
-        return len(self.__minheap)
+        return self.__length
 
     def min(self):
         """
@@ -306,14 +308,10 @@ class SortedList:
         Returns:
             return_list(list): the sorted list in descending order
         """
-        ascend_list = [heapq.heappop(self.__minheap) for i in range(len(self.__minheap))]
         if order == "descend":
-            descend_list = []
-            for i in range(len(ascend_list))[::-1]:
-                descend_list.append(ascend_list[i])
-            return descend_list
+            return sorted(self.__minheap, reverse=True)
         elif order == "ascend":
-            return ascend_list
+            return sorted(self.__minheap)
         else:
             raise NotImplementedError("sorting order {0} is not implemented.".format(order))
 
@@ -323,29 +321,29 @@ class TestAlgorithms(unittest.TestCase):
         """Set up for the test cases."""
         self.dict = {"A": [15, 300], "B":[15, 200], "C": [1, 3000]}
 
-        mylist = LinkedList(10)
-        last = mylist.sorted_insert_data(5)
-        last = mylist.sorted_insert_data(1)
-        last = mylist.sorted_insert_data(3)
-        last = mylist.sorted_insert_data(2)
-        last = mylist.sorted_insert_data(15)
-        last = mylist.sorted_insert_data(12)
-        last = mylist.sorted_insert_data(32)
-        last = mylist.sorted_insert_data(24)
-        last = mylist.sorted_insert_data(41)
-        last = mylist.sorted_insert_data(4)
-        last = mylist.sorted_insert_data(2)
-        self.linkedlist = mylist
-        self.lastnode = last
+        
+        #unit test for the heap
+        container=Heap(10)
+        container.push(5)
+        container.push(1)
+        container.push(3)
+        container.push(2)
+        container.push(15)
+        container.push(12)
+        container.push(32)
+        container.push(24)
+        container.push(41)
+        container.push(4)
+        container.push(2)
+        self.container=container
 
 
-    def test_linked_list(self):
+    def test_heap(self):
         """Test for replace data to a node and reinsert it in linked list."""
-        self.lastnode.replace_data(44)
-        self.linkedlist.sort_node(self.lastnode)
+        self.assertEqual(self.container.get("descend"),[41,32,24,15,12,5,4,3,2,2])
 
-        res = self.linkedlist.get_list()
-        self.assertEquals(res, [2,3,4,5,12,15,24,32,41,44])
+        self.container.push(44)
+        self.assertEqual(self.container.get("ascend"),[2,3,4,5,12,15,24,32,41,44])
 
     def test_nlargest_dict(self):
         """Test for the nlargest functionality for a dictionary."""

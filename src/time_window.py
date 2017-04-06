@@ -29,27 +29,25 @@ class TimeWindow(object):
         """
         Private variables:
             __queue(deque): a queue stores the time of each activity in the current time window
-            __top_overlap(LinkedList): an ascending ordered linked list that stores the top n
+            __top_overlap(Heap): an ascending ordered heap that stores the top n
                 time window's starting time. 
-            __top_no_overlap(LinkedList): an ascending ordered linked list that stores the top n
+            __top_no_overlap(Heap): an ascending ordered heap that stores the top n
                 time window's starting time. Each time window doesn't overlap with each other. 
-            __last_node(node): the node with the latest time window pushed into the
-                top list.
-            __sorted(boolean): True if the linked list is in ascending order, False if
-                the node __last_node is not in place but the rest of the list is in
-                ascending order.
+            __pending_data(list): the list of length 2 with indices name __COUNT and __TIME
+            __is_pending(boolean): True if there is a pending data that has not yet been pushed
+                to the heap.
         """
         self.__time_window = dt.timedelta(hours=hours)
         self.__n_top = n_top
 
         self.__queue = deque()
 
-        self.__top_overlap = utility.SortedList(self.__n_top) 
+        self.__top_overlap = utility.Heap(self.__n_top) 
 
         self.__is_pending = False
         self.__pending_data = None
 
-        self.__top_no_overlap = utility.SortedList(self.__n_top)
+        self.__top_no_overlap = utility.Heap(self.__n_top)
 
     def __shift_time_window(self, entry):
         """
@@ -89,7 +87,7 @@ class TimeWindow(object):
     def __update_top_allow_overlap(self, number, time):
         """
         Given the number of logs and starting time of the current time window,
-        update the __top_overlap list.
+        update the __top_overlap heap.
         Args:
             number(int): number of activities in the current queue.
             time(datetime): starting time in the current queue.
@@ -100,7 +98,7 @@ class TimeWindow(object):
     def __update_top_without_overlap(self, number, time):
         """
         Given the number of logs and starting time of the current time window,
-        update the __top_no_overlap list. The time windows in __top_no_overlap don't
+        update the __top_no_overlap heap. The time windows in __top_no_overlap don't
         overlap with each other.
         Args:
             number(int): number of activities in the current queue.
@@ -131,7 +129,6 @@ class TimeWindow(object):
             # in the list
             if self.__top_no_overlap.length() < self.__n_top\
                or tuple(new_data) > tuple(self.__top_no_overlap.min()):
-                print self.__top_no_overlap.min(), new_data
 
                 # Record current time window as a pending time window
                 self.__is_pending = True
@@ -140,7 +137,7 @@ class TimeWindow(object):
     def update(self, entry):
         """
         Given a new entry, update the current time window's queue and update the __top_overlap
-        list and __top_no_overlap list.
+        heap and __top_no_overlap heap.
         Args:
             entry(dict): the new log dictionary.
         """
@@ -154,13 +151,27 @@ class TimeWindow(object):
         At the end of file, collect the time windows that is not with one full hour
         but contains the events in the last period of time.
         """
+        # Make up a fake entry at the end of file
         fake_entry = entry
+
+        # Set the time to be one hour later than the last time in the file
         fake_entry["Time"] = entry["Time"] + self.__time_window
+
+        # Update the fake entry data so that the time windows in the last hour can be added
+        # to the list
         self.update(fake_entry)
+
+        # Check if there is a pending data that needs to be pushed into the 
+        # __top_no_overlap list
+        if self.__is_pending:
+            # Put the __pending_data in the right place in the list
+            self.__top_no_overlap.push(self.__pending_data)
+            self.__is_pending = False
+            self.__pending_data = None
 
     def top(self):
         """
-        Transform the __top_overlap (ascending linked list) to a list in descending order.
+        Transform the __top_overlap (min heap) to a list in descending order.
         Returns:
             result(list): A list of length-2 lists. Each length-2 lists contains list[0]
             as the number of activities of the time window and list[1] the starting time.
@@ -172,7 +183,7 @@ class TimeWindow(object):
 
     def top_no_overlap(self):
         """
-        Transform the __top_no_overlap (ascending linked list) to a list in descending order.
+        Transform the __top_no_overlap (min heap) to a list in descending order.
         Returns:
             result(list): A list of length-2 lists. Each length-2 lists contains list[0]
             as the number of activities of the time window and list[1] the starting time.
@@ -222,13 +233,11 @@ class TestTimeWindow(unittest.TestCase):
         hours.finalize(final)
 
         result = hours.top()
-        print result
         self.assertEquals(result[0], [5, '01/Jul/1995:08:00:11 '])
         self.assertEquals(result[1], [3, '01/Jul/1995:08:00:13 '])
         self.assertEquals(result[2], [3, '01/Jul/1995:01:00:03 '])
 
         result2 = hours.top_no_overlap()
-        print result2
         self.assertEquals(result2[0], [5, '01/Jul/1995:08:00:11 '])
         self.assertEquals(result2[1], [3, '01/Jul/1995:01:00:03 '])
         self.assertEquals(result2[2], [2, '01/Jul/1995:02:00:06 '])
